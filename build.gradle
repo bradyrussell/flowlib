@@ -1,0 +1,101 @@
+plugins {
+	id 'java'
+	id 'maven-publish'
+	id 'signing'
+}
+
+group 'com.bradyrussell.flow.lib'
+version '1.0-SNAPSHOT'
+
+repositories {
+	mavenCentral()
+
+	maven {
+		url "https://repo.bradyrussell.com/repository/bradyrussell-release/"
+	}
+
+	maven {
+		url "https://repo.bradyrussell.com/repository/bradyrussell-snapshot/"
+	}
+}
+
+publishing {
+	publications {
+		FlowLib(MavenPublication) {
+			from components.java
+		}
+	}
+
+	repositories {
+		maven {
+			url = version.endsWith('SNAPSHOT') ? "https://repo.bradyrussell.com/repository/bradyrussell-snapshot/" : "https://repo.bradyrussell.com/repository/bradyrussell-release/"
+			credentials {
+				username = repoUsername
+				password = repoPassword
+			}
+		}
+	}
+}
+
+sourceSets.main.java.srcDirs = ['src']
+sourceSets.test.java.srcDirs = ['test']
+
+java {
+	withJavadocJar()
+	withSourcesJar()
+
+	toolchain {
+		languageVersion.set(JavaLanguageVersion.of(16))
+	}
+}
+
+dependencies {
+	implementation 'org.jetbrains:annotations:22.0.0'
+	implementation 'com.bradyrussell:UISCoinLang:1.1-20210911.185257-17'
+	// https://mvnrepository.com/artifact/com.google.code.gson/gson
+	implementation group: 'com.google.code.gson', name: 'gson', version: '2.8.8'
+
+
+	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+jar {
+	manifest {
+		attributes  'Automatic-Module-Name': 'com.bradyrussell.flow.lib'
+	}
+}
+
+test {
+	useJUnitPlatform()
+	maxHeapSize = '1G'
+}
+
+task copyDependencies(type: Copy) {
+	from configurations.runtimeClasspath
+	into 'dependencies'
+}
+
+task copyJar(type: Copy) {
+	dependsOn("jar", "javadocJar", "sourcesJar")
+	from layout.buildDirectory.dir("libs")
+	into 'jar'
+}
+
+task copyJavadoc(type: Copy) {
+	dependsOn("javadoc")
+	from layout.buildDirectory.dir("docs")
+	into "docs"
+}
+
+task preCommit() {
+	dependsOn("clean", "test", "javadoc", "copyJavadoc")
+}
+
+
+
+// pre commit:
+//gradle clean spotlessApply test javadoc copyJavadoc
+
+// post commit (Jenkins):
+//gradle clean copyAntlrGeneratedFiles test javadoc jar javadocJar sourcesJar copyJar copyJavadoc copyDependencies publish

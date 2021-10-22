@@ -1,0 +1,16 @@
+{
+  "FlowAdapter":{
+    "PrimitiveTypes": {
+      "byte": {
+        "size": 1,
+        "casts": {
+          "mode": "allow",
+          "to": ["int32", "int64", "float"]
+        }
+      },
+      "int32": 4,
+      "int64": 8,
+      "float": 4
+    }
+  }
+}

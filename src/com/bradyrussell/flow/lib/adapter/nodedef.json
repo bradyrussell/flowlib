@@ -1,0 +1,23 @@
+{
+  "nodeDefinitions": [
+    {
+      "ID": "Print",
+      "Inputs": [
+        {
+          "ID": "FlowIn",
+          "Type": "Flow"
+        },
+        {
+          "ID": "Message",
+          "Type": "string"
+        }
+      ],
+      "Outputs": [
+        {
+          "ID": "FlowOut",
+          "Type": "Flow"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "Meta": {
+    "Name": "example#flow",
+    "Created": "10/16/2021",
+    "Author": "bradyrussell",
+    "Color": "0xffffff"
+  },
+  "Structs": [
+    {
+      "ID": "ExampleStruct",
+      "Color": "0xff00ff",
+      "Variables": [
+        {
+          "ID": "a",
+          "Type": "int32",
+          "Array": false,
+          "Pointer": false
+        },
+        {
+          "ID": "b",
+          "Type": "int64",
+          "Array": true,
+          "ArrayLength": 4,
+          "Pointer": false
+        },
+        {
+          "ID": "c",
+          "Type": "float",
+          "Array": false,
+          "Pointer": true
+        }
+      ]
+    }
+  ],
+  "Nodes": [
+    {
+      "ID": "Comment#0",
+      "X": 10,
+      "Y": 10,
+      "Values": {
+        "Message": "Hello world."
+      }
+    },
+    {
+      "ID": "If#0",
+      "X": 10,
+      "Y": 10
+    },
+    {
+      "ID": "Print#0",
+      "X": 10,
+      "Y": 10,
+      "Values": {
+        "Message": "This is a literal message."
+      }
+    },
+    {
+      "ID": "Print#1",
+      "X": 10,
+      "Y": 10
+    },
+    {
+      "ID": "Random#0",
+      "X": 10,
+      "Y": 10,
+      "Values": {
+        "Min": "0",
+        "Max": "1"
+      }
+    }
+  ],
+  "Connections": [
+    {
+      "Between": [
+        "Flow.Start",
+        "Random#0.FlowIn"
+      ]
+    },
+    {
+      "Between": [
+        "Random#0.FlowOut",
+        "If#0.FlowIn"
+      ]
+    },
+    {
+      "Between": [
+        "If#0.TrueFlowOut",
+        "Print#0.FlowIn"
+      ]
+    },
+    {
+      "Between": [
+        "If#0.FalseFlowOut",
+        "Print#1.FlowIn"
+      ]
+    },
+    {
+      "Between": [
+        "Flow.ExampleInputString",
+        "Print#1.Message"
+      ],
+      "Reference": true
+    },
+    {
+      "Between": [
+        "Print#0.FlowOut",
+        "Flow.End"
+      ]
+    },
+    {
+      "Between": [
+        "Print#1.FlowOut",
+        "Flow.End"
+      ]
+    }
+  ]
+}
