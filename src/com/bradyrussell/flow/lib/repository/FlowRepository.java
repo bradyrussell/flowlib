@@ -11,6 +11,7 @@ public interface FlowRepository {
     CompletableFuture<FlowArtifact> getArtifactByFullyQualifiedId(String fullyQualifiedId);
     CompletableFuture<List<FlowArtifact>> getArtifactsByGroupId(String groupId);
     CompletableFuture<List<FlowArtifact>> getArtifactsByArtifactId(String artifactId);
+    CompletableFuture<List<FlowArtifact>> searchArtifacts(String keywords);
     CompletableFuture<List<FlowArtifact>> searchArtifacts(String groupId, String artifactId, String minimumVersion, String maximumVersion);
     default CompletableFuture<FlowArtifact> getArtifactByDependency(FlowDependency dependency) {
         return searchArtifacts(dependency.groupId, dependency.artifactId, dependency.minimumVersion, dependency.maximumVersion).thenApply((flowArtifacts -> {

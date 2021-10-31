@@ -85,6 +85,11 @@ public class RestFlowRepository implements FlowRepository {
     }
 
     @Override
+    public CompletableFuture<List<FlowArtifact>> searchArtifacts(String keywords) {
+        return null;
+    }
+
+    @Override
     public CompletableFuture<List<FlowArtifact>> searchArtifacts(String groupId, String artifactId, String minimumVersion, String maximumVersion) {
         return null;
     }
