@@ -56,7 +56,7 @@ public class RestFlowRepository implements FlowRepository {
     public CompletableFuture<FlowArtifact> getArtifactByFullyQualifiedId(String fullyQualifiedId) {
         String cacheKey = "artifact#" + fullyQualifiedId;
         if (cache.containsKey(cacheKey) && cachedAt.get(cacheKey) + CacheExpirySeconds > Instant.now().getEpochSecond()) {
-            return CompletableFuture.completedFuture(new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().fromJson(cache.get(cacheKey), RestFlowArtifact.class));
+            return CompletableFuture.completedFuture(Constants.gson.get().fromJson(cache.get(cacheKey), RestFlowArtifact.class));
         }
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -71,7 +71,7 @@ public class RestFlowRepository implements FlowRepository {
                     cache.put(cacheKey, json);
                     cachedAt.put(cacheKey, Instant.now().getEpochSecond());
                     return json;
-                }).thenApplyAsync((json) -> new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().fromJson(json, RestFlowArtifact.class));
+                }).thenApplyAsync((json) -> Constants.gson.get().fromJson(json, RestFlowArtifact.class));
     }
 
     @Override
@@ -98,7 +98,7 @@ public class RestFlowRepository implements FlowRepository {
     public CompletableFuture<Flow> getFlowByFullyQualifiedId(String fullyQualifiedId) {
         String cacheKey = "flow#" + fullyQualifiedId;
         if (cache.containsKey(cacheKey) && cachedAt.get(cacheKey) + CacheExpirySeconds > Instant.now().getEpochSecond()) {
-            return CompletableFuture.completedFuture(new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().fromJson(cache.get(cacheKey), Flow.class));
+            return CompletableFuture.completedFuture(Constants.gson.get().fromJson(cache.get(cacheKey), Flow.class));
         }
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -113,6 +113,6 @@ public class RestFlowRepository implements FlowRepository {
                     cache.put(cacheKey, json);
                     cachedAt.put(cacheKey, Instant.now().getEpochSecond());
                     return json;
-                }).thenApplyAsync((json) -> new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().fromJson(json, Flow.class));
+                }).thenApplyAsync((json) -> Constants.gson.get().fromJson(json, Flow.class));
     }
 }

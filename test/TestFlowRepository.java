@@ -1,3 +1,4 @@
+import com.bradyrussell.flow.lib.Constants;
 import com.bradyrussell.flow.lib.graph.Flow;
 import com.bradyrussell.flow.lib.repository.FlowArtifact;
 import com.bradyrussell.flow.lib.repository.FlowDependency;
@@ -28,7 +29,7 @@ public class TestFlowRepository {
 
     @Test
     void TestFlowDependencyString() {
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        Gson gson = Constants.gson.get();
         //com.bradyrussell.flow.MyExampleFlow:1.0.0-snapshot@rest://https://uiscoin.com
         //com.bradyrussell.flow.MyExampleFlow:1.0.0-snapshot+@rest://https://uiscoin.com
         //com.bradyrussell.flow.MyExampleFlow:1.0.0-snapshot-@rest://https://uiscoin.com
@@ -61,7 +62,7 @@ public class TestFlowRepository {
 
     @Test
     void TestGetFlow() throws ExecutionException, InterruptedException {
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        Gson gson = Constants.gson.get();
         RestFlowRepository repository = new RestFlowRepository("https://uiscoin.com");
 
         CompletableFuture<Flow> flowCompletableFuture = repository.getFlowByFullyQualifiedId("com.bradyrussell.flow.MyExampleFlow:1.0.0-snapshot");

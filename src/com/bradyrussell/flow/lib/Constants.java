@@ -1,6 +1,11 @@
 /* (C) Brady Russell 2021 */
 package com.bradyrussell.flow.lib;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import java.util.function.Supplier;
+
 public class Constants {
     public static final String NodeTypeIndexDelimiter = "#";
     public static final String NodeIDValueDelimiter = ".";
@@ -13,4 +18,6 @@ public class Constants {
     public static final String VersionRangeLessThanOrEqual = "-";
     public static final String DependencyIdRepositoryDelimiter = "@";
     public static final String RepositoryProtocolAddressDelimiter = "://";
+    
+    public static final Supplier<Gson> gson = () -> new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 }

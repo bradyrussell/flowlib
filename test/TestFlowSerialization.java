@@ -1,3 +1,4 @@
+import com.bradyrussell.flow.lib.Constants;
 import com.bradyrussell.flow.lib.adapter.UISCoinLangFlowAdapter;
 import com.bradyrussell.flow.lib.graph.*;
 import com.bradyrussell.flow.lib.repository.FlowDependency;
@@ -15,7 +16,7 @@ public class TestFlowSerialization {
     @Test
     void TestSerialization(){
         //Arrange
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        Gson gson = Constants.gson.get();
         Flow f = new Flow();
         f.setMeta("Name", "example_flow");
 
@@ -84,7 +85,7 @@ public class TestFlowSerialization {
 
     @Test
     public void TestFlowVisitor() throws IOException {
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        Gson gson = Constants.gson.get();
         String flowJson = Files.readString(Path.of("example_flow.fl"));
         Flow flow = gson.fromJson(flowJson, Flow.class);
         flow.load();
