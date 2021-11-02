@@ -35,14 +35,14 @@ public class TestFlowSerialization {
         s.setVariables(List.of(var1, var2));
         f.addStruct(s);
         Node node = new Node(f);
-        node.setId("Print#0");
+        node.setId("Print",0);
         node.setX(1);
         node.setY(2);
         node.setValue("Message", "Hello world!");
         node.setValue("Log", "true");
         f.addNode(node);
         Node node2 = new Node(f);
-        node2.setId("Print#1");
+        node2.setId("Print",1);
         node2.setX(2);
         node2.setY(1);
         node2.setValue("Message", "Hello world 2!");

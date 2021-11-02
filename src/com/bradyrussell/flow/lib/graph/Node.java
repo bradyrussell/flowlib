@@ -42,16 +42,17 @@ public class Node {
         this.flow = flow;
     }
 
-    public Node(String type, int index) {
-        this.id = type + Constants.NodeTypeIndexDelimiter + index;
+    public Node(Flow flow, String type, int index) {
+        this.flow = flow;
+        setId(type, index);
     }
 
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setId(String type, int index) {
+        this.id = type + Constants.NodeTypeIndexDelimiter + index;
     }
 
     public Integer getX() {
