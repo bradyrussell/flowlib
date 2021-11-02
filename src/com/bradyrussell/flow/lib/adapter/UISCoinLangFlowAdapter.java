@@ -70,6 +70,50 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String>{
        return null;
     }
 
+    @Override
+    public boolean isValidTypeLiteral(String type, String literal) {
+        switch (type) {
+            case "byte" -> {
+                try {
+                    Byte.parseByte(literal);
+                    return true;
+                } catch (NumberFormatException e){
+                    return false;
+                }
+            }
+            case "int32" -> {
+                try {
+                    Integer.parseInt(literal);
+                    return true;
+                } catch (NumberFormatException e){
+                    return false;
+                }
+            }
+            case "int64" -> {
+                try {
+                    Long.parseLong(literal);
+                    return true;
+                } catch (NumberFormatException e){
+                    return false;
+                }
+            }
+            case "float" -> {
+                try {
+                    Float.parseFloat(literal);
+                    return true;
+                } catch (NumberFormatException e){
+                    return false;
+                }
+            }
+            case "void" -> {
+                return true;
+            }
+            default -> {
+                return false;
+            }
+        }
+    }
+
     public String visitPrintNode(String message) {
         return "print(\""+message+"\");\n";
     }

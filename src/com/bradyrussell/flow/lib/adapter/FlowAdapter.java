@@ -17,4 +17,6 @@ public interface FlowAdapter<T> {
     T visitVariableDeclaration(Flow flow, VariableDefinition variable);
     T visitStructDeclaration(Flow flow, StructDefinition struct);
     T visitNode(Flow flow, Node node);
+
+    boolean isValidTypeLiteral(String type, String literal);
 }
