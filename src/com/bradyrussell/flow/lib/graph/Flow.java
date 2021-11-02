@@ -83,6 +83,17 @@ public class Flow {
         return true;
     }
 
+    public void removeNode(Node node) {
+        List<Connection> toRemove = new ArrayList<>();
+        for (Connection connection : getConnections()) {
+            if(connection.getBetween().contains(node.getId())) {
+                toRemove.add(connection);
+            }
+        }
+        connections.removeAll(toRemove);
+        nodes.remove(node.getId());
+    }
+
     public Node getNode(String nodeId) {
         return nodes.get(nodeId);
     }
