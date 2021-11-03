@@ -117,7 +117,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String>{
 
     @Override
     public boolean isAutoCastAllowed(String fromType, String toType) {
-        return !fromType.equals(Constants.FlowType) && toType.equals(Constants.FlowType);
+        return !fromType.equals(Constants.FlowType) && !toType.equals(Constants.FlowType);
     }
 
     public String visitPrintNode(String message) {
