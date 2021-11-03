@@ -19,4 +19,5 @@ public interface FlowAdapter<T> {
     T visitNode(Flow flow, Node node);
 
     boolean isValidTypeLiteral(String type, String literal);
+    boolean isAutoCastAllowed(String fromType, String toType);
 }

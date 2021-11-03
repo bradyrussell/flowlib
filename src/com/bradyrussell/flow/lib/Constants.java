@@ -18,6 +18,7 @@ public class Constants {
     public static final String VersionRangeLessThanOrEqual = "-";
     public static final String DependencyIdRepositoryDelimiter = "@";
     public static final String RepositoryProtocolAddressDelimiter = "://";
-    
+    public static final String FlowType = "Flow";
+
     public static final Supplier<Gson> gson = () -> new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 }

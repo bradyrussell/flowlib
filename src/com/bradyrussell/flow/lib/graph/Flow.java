@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import com.bradyrussell.flow.lib.Constants;
+import com.bradyrussell.flow.lib.adapter.FlowAdapter;
 import com.bradyrussell.flow.lib.graph.serialization.NodeDefinitionsSerializer;
 import com.bradyrussell.flow.lib.graph.serialization.NodesSerializer;
 import com.bradyrussell.flow.lib.repository.FlowDependency;

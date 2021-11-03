@@ -1,5 +1,6 @@
 package com.bradyrussell.flow.lib.adapter;
 
+import com.bradyrussell.flow.lib.Constants;
 import com.bradyrussell.flow.lib.graph.*;
 
 import java.util.List;
@@ -112,6 +113,11 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String>{
                 return false;
             }
         }
+    }
+
+    @Override
+    public boolean isAutoCastAllowed(String fromType, String toType) {
+        return !fromType.equals(Constants.FlowType) && toType.equals(Constants.FlowType);
     }
 
     public String visitPrintNode(String message) {
