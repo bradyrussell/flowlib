@@ -45,7 +45,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
         for (StructDefinition struct : flow.getStructs()) {
             structs.append(visitStructDeclaration(flow, struct)).append("\n");
         }
-        return "BEGIN\n" + structs + visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId("Flow.Begin")));
+        return structs + visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId("Flow.Begin")));
     }
 
     @Override
@@ -67,7 +67,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
     @Override
     public String visitNode(Flow flow, Node node) {
         if (node == null) {
-            return "END";
+            return "";
         }
         StringBuilder sb = new StringBuilder();
 
