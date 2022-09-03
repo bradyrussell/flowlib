@@ -6,6 +6,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class StructDefinitionBuilder {
@@ -21,12 +22,12 @@ public class StructDefinitionBuilder {
         return this;
     }
 
-    public StructDefinitionBuilder addVariable(VariableDefinition variableDefinition) {
+    public StructDefinitionBuilder addVariable(VariableDefinition... variableDefinition) {
         List<VariableDefinition> vars = structDefinition.getVariables();
         if (vars == null) {
             vars = new ArrayList<>();
         }
-        vars.add(variableDefinition);
+        vars.addAll(Arrays.asList(variableDefinition));
         structDefinition.setVariables(vars);
         return this;
     }

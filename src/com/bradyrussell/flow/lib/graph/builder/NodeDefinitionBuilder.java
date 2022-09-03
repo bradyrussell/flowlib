@@ -4,6 +4,7 @@ import com.bradyrussell.flow.lib.graph.NodeDefinition;
 import com.bradyrussell.flow.lib.graph.VariableDefinition;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class NodeDefinitionBuilder {
@@ -14,42 +15,42 @@ public class NodeDefinitionBuilder {
         nodeDefinition.setId(id);
     }
 
-    public NodeDefinitionBuilder addInput(VariableDefinition variableDefinition) {
+    public NodeDefinitionBuilder addInput(VariableDefinition... variableDefinition) {
         List<VariableDefinition> inputs = nodeDefinition.getInputs();
         if(inputs == null) {
             inputs = new ArrayList<>();
         }
-        inputs.add(variableDefinition);
+        inputs.addAll(Arrays.asList(variableDefinition));
         nodeDefinition.setInputs(inputs);
         return this;
     }
 
-    public NodeDefinitionBuilder addOutput(VariableDefinition variableDefinition) {
+    public NodeDefinitionBuilder addOutput(VariableDefinition... variableDefinition) {
         List<VariableDefinition> outputs = nodeDefinition.getOutputs();
         if(outputs == null) {
             outputs = new ArrayList<>();
         }
-        outputs.add(variableDefinition);
+        outputs.addAll(Arrays.asList(variableDefinition));
         nodeDefinition.setOutputs(outputs);
         return this;
     }
 
-    public NodeDefinitionBuilder addFlowInput(String flowInput) {
+    public NodeDefinitionBuilder addFlowInput(String... flowInput) {
         List<String> inputs = nodeDefinition.getFlowInputs();
         if(inputs == null) {
             inputs = new ArrayList<>();
         }
-        inputs.add(flowInput);
+        inputs.addAll(Arrays.asList(flowInput));
         nodeDefinition.setFlowInputs(inputs);
         return this;
     }
 
-    public NodeDefinitionBuilder addFlowOutput(String flowOutput) {
+    public NodeDefinitionBuilder addFlowOutput(String... flowOutput) {
         List<String> outputs = nodeDefinition.getFlowOutputs();
         if(outputs == null) {
             outputs = new ArrayList<>();
         }
-        outputs.add(flowOutput);
+        outputs.addAll(Arrays.asList(flowOutput));
         nodeDefinition.setFlowOutputs(outputs);
         return this;
     }

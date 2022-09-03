@@ -130,4 +130,14 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String>{
     public String visitPrintNode(String message) {
         return "print(\""+message+"\");\n";
     }
+
+    private static List<NodeDefinition> nativeMethods = List.of(
+        new NodeDefinitionBuilder("set").addInput(
+                new VariableDefinition("location", "int32"),
+                new VariableDefinition("position", "int32"),
+                new VariableDefinition("length", "int32"),
+                new VariableDefinition("value", "int32")
+        ).build()
+
+    );
 }
