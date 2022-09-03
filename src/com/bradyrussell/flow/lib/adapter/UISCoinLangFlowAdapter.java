@@ -217,6 +217,15 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
             ).addOutput(
                     new VariableDefinition("value", "int32")
             ).build(),
+            new NodeDefinitionBuilder("copy").addInput(
+                    new VariableDefinition("sourceLocation", "void", true),
+                    new VariableDefinition("sourcePosition", "int32"),
+                    new VariableDefinition("destinationLocation", "void", true),
+                    new VariableDefinition("destinationPosition", "int32"),
+                    new VariableDefinition("length", "int32")
+            ).addOutput(
+                    new VariableDefinition("value", "int32")
+            ).build(),
             new NodeDefinitionBuilder("encrypt").addInput(
                     new VariableDefinition("key", "byte", 0),
                     new VariableDefinition("data", "byte", 0)
@@ -228,6 +237,10 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
                     new VariableDefinition("data", "byte", 0)
             ).addOutput(
                     new VariableDefinition("result", "byte", 0)
+            ).build(),
+            new NodeDefinitionBuilder("verifySig").addInput(
+                    new VariableDefinition("signature", "byte", 0),
+                    new VariableDefinition("publicKey", "byte", 0)
             ).build(),
             new NodeDefinitionBuilder("alloc").addInput(
                     new VariableDefinition("location", "int32"),
@@ -250,6 +263,114 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
             ).build(),
             new NodeDefinitionBuilder("instruction").addOutput(
                     new VariableDefinition("instruction", "int32")
+            ).build(),
+            new NodeDefinitionBuilder("log").addInput(
+                    new VariableDefinition("value", "float")
+            ).addOutput(
+                    new VariableDefinition("result", "float")
+            ).build(),
+            new NodeDefinitionBuilder("log").addInput(
+                    new VariableDefinition("value", "float")
+            ).addOutput(
+                    new VariableDefinition("result", "float")
+            ).build(),
+            new NodeDefinitionBuilder("logn").addInput(
+                    new VariableDefinition("value", "float"),
+                    new VariableDefinition("n", "float")
+            ).addOutput(
+                    new VariableDefinition("result", "float")
+            ).build(),
+            new NodeDefinitionBuilder("isinf").addInput(
+                    new VariableDefinition("value", "float")
+            ).addOutput(
+                    new VariableDefinition("result", "byte")
+            ).build(),
+            new NodeDefinitionBuilder("isnan").addInput(
+                    new VariableDefinition("value", "float")
+            ).addOutput(
+                    new VariableDefinition("result", "byte")
+            ).build(),
+            new NodeDefinitionBuilder("isfin").addInput(
+                    new VariableDefinition("value", "float")
+            ).addOutput(
+                    new VariableDefinition("result", "byte")
+            ).build(),
+            new NodeDefinitionBuilder("pow").addInput(
+                    new VariableDefinition("value", "float"),
+                    new VariableDefinition("power", "float")
+            ).addOutput(
+                    new VariableDefinition("result", "float")
+            ).build(),
+            new NodeDefinitionBuilder("root").addInput(
+                    new VariableDefinition("value", "float"),
+                    new VariableDefinition("root", "float")
+            ).addOutput(
+                    new VariableDefinition("result", "float")
+            ).build(),
+            new NodeDefinitionBuilder("abs").addInput(
+                    new VariableDefinition("value", "int64")
+            ).addOutput(
+                    new VariableDefinition("result", "int64")
+            ).build(),
+            new NodeDefinitionBuilder("fabs").addInput(
+                    new VariableDefinition("value", "float")
+            ).addOutput(
+                    new VariableDefinition("result", "float")
+            ).build(),
+            new NodeDefinitionBuilder("sin").addInput(
+                    new VariableDefinition("value", "float")
+            ).addOutput(
+                    new VariableDefinition("result", "float")
+            ).build(),
+            new NodeDefinitionBuilder("cos").addInput(
+                    new VariableDefinition("value", "float")
+            ).addOutput(
+                    new VariableDefinition("result", "float")
+            ).build(),
+            new NodeDefinitionBuilder("tan").addInput(
+                    new VariableDefinition("value", "float")
+            ).addOutput(
+                    new VariableDefinition("result", "float")
+            ).build(),
+            new NodeDefinitionBuilder("asin").addInput(
+                    new VariableDefinition("value", "float")
+            ).addOutput(
+                    new VariableDefinition("result", "float")
+            ).build(),
+            new NodeDefinitionBuilder("acos").addInput(
+                    new VariableDefinition("value", "float")
+            ).addOutput(
+                    new VariableDefinition("result", "float")
+            ).build(),
+            new NodeDefinitionBuilder("atan").addInput(
+                    new VariableDefinition("value", "float")
+            ).addOutput(
+                    new VariableDefinition("result", "float")
+            ).build(),
+            new NodeDefinitionBuilder("floor").addInput(
+                    new VariableDefinition("value", "float")
+            ).addOutput(
+                    new VariableDefinition("result", "float")
+            ).build(),
+            new NodeDefinitionBuilder("ceil").addInput(
+                    new VariableDefinition("value", "float")
+            ).addOutput(
+                    new VariableDefinition("result", "float")
+            ).build(),
+            new NodeDefinitionBuilder("round").addInput(
+                    new VariableDefinition("value", "float")
+            ).addOutput(
+                    new VariableDefinition("result", "float")
+            ).build(),
+            new NodeDefinitionBuilder("len").addInput(
+                    new VariableDefinition("value", "void")
+            ).addOutput(
+                    new VariableDefinition("result", "int32")
+            ).build(),
+            new NodeDefinitionBuilder("sizeof").addInput(
+                    new VariableDefinition("value", "void")
+            ).addOutput(
+                    new VariableDefinition("result", "int32")
             ).build()
     );
 }
