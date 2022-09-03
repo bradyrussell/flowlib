@@ -114,7 +114,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
             case "code" -> {
                 List<String> inputPins = node.getInputPins();
                 String pinConstantValue = flow.getPinConstantValue(inputPins.get(0));
-                sb.append("/* Begin Code Node: ").append(node.getId()).append(" */");
+                sb.append("/* Begin Code Node: ").append(node.getId()).append(" */\n");
                 if(pinConstantValue != null) {
                     sb.append(resolveLiteral(pinConstantValue));
                 } else {
@@ -123,7 +123,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
                         sb.append(convertIdentifier(connectedPinId));
                     }
                 }
-                sb.append("/* End Code Node: ").append(node.getId()).append(" */");
+                sb.append("\n/* End Code Node: ").append(node.getId()).append(" */\n");
             }
             case "equals" -> {
                 sb.append(biOperator(flow, node, "=="));
