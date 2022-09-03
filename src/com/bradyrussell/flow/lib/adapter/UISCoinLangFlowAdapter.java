@@ -101,10 +101,11 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
                 }
 
                 sb.append(");");
+                return sb.toString();
             }
         }
 
-        throw new RuntimeException("Node " + node.getType() + " was not implemented!");
+       // throw new RuntimeException("Node " + node.getType() + " was not implemented!");
     }
 
     @Override
