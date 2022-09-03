@@ -64,6 +64,43 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
         return sb.toString();
     }
 
+    private String resolveLiteral(String literal) {
+        if(isValidTypeLiteral("float", literal)) {
+            return literal;
+        } else {
+            return "\""+literal+"\"";
+        }
+    }
+
+    private String biOperator(Flow flow, Node node, String operator) {
+        StringBuilder sb = new StringBuilder();
+        List<String> inputPins = node.getInputPins();
+        String aPinConstantValue = flow.getPinConstantValue(inputPins.get(0));
+        if(aPinConstantValue != null) {
+            sb.append(resolveLiteral(aPinConstantValue));
+        } else {
+            String connectedPinId = flow.getConnectedPinId(inputPins.get(0));
+            if(connectedPinId != null) {
+                sb.append(convertIdentifier(connectedPinId));
+            }
+        }
+
+        sb.append(" ").append(operator).append(" ");
+
+        String bPinConstantValue = flow.getPinConstantValue(inputPins.get(0));
+        if(bPinConstantValue != null) {
+            sb.append(resolveLiteral(bPinConstantValue));
+        } else {
+            String connectedPinId = flow.getConnectedPinId(inputPins.get(0));
+            if(connectedPinId != null) {
+                sb.append(convertIdentifier(connectedPinId));
+            }
+        }
+        sb.append(";\n");
+        sb.append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("FlowOut")))));
+        return sb.toString();
+    }
+
     @Override
     public String visitNode(Flow flow, Node node) {
         if (node == null) {
@@ -72,16 +109,15 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
         StringBuilder sb = new StringBuilder();
 
         switch (node.getType()) {
+            case "equals" -> {
+                sb.append(biOperator(flow, node, "=="));
+            }
             case "if" -> {
                 sb.append("if(");
                 List<String> inputPins = node.getInputPins();
                 String pinConstantValue = flow.getPinConstantValue(inputPins.get(0));
                 if(pinConstantValue != null) {
-                    if(isValidTypeLiteral("float", pinConstantValue)) {
-                        sb.append(pinConstantValue);
-                    } else {
-                        sb.append("\"").append(pinConstantValue).append("\"");
-                    }
+                    sb.append(resolveLiteral(pinConstantValue));
                 } else {
                     String connectedPinId = flow.getConnectedPinId(inputPins.get(0));
                     if(connectedPinId != null) {
@@ -119,12 +155,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
                 for (int i = 0; i < inputPins.size(); i++) {
                     String pinConstantValue = flow.getPinConstantValue(inputPins.get(i));
                     if(pinConstantValue != null) {
-                        //nodeDefinition.getInputs().get(i).getType()
-                        if(isValidTypeLiteral("float", pinConstantValue)) {
-                            sb.append(pinConstantValue);
-                        } else {
-                            sb.append("\"").append(pinConstantValue).append("\"");
-                        }
+                        sb.append(resolveLiteral(pinConstantValue));
                     } else {
                         String connectedPinId = flow.getConnectedPinId(inputPins.get(i));
                         if(connectedPinId != null) {
@@ -143,7 +174,6 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
 
         sb.append("\n");
         return sb.toString();
-       // throw new RuntimeException("Node " + node.getType() + " was not implemented!");
     }
 
     private String convertIdentifier(String input) {
@@ -201,6 +231,10 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
 
     private static List<NodeDefinition> nativeMethods = List.of(
             new NodeDefinitionBuilder("print").addInput(new VariableDefinition("message", "void")).build(),
+            new NodeDefinitionBuilder("equals").addInput(
+                    new VariableDefinition("a", "void"),
+                    new VariableDefinition("b", "void")
+            ).addOutput(new VariableDefinition("result", "byte")).build(),
             new NodeDefinitionBuilder("if").addInput(
                     new VariableDefinition("condition", "byte")
             ).addFlowOutput("true").addFlowOutput("false").build(),
