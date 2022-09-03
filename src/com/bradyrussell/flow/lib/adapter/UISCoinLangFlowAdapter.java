@@ -74,6 +74,8 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
 
     private String biOperator(Flow flow, Node node, String operator) {
         StringBuilder sb = new StringBuilder();
+        NodeDefinition nodeDefinition = flow.getNodeDefinition(node.getType());
+        sb.append(nodeDefinition.getOutputs().get(0).getType()).append(" ").append(convertIdentifier(node.getOutputPins().get(0))).append(" = ");
         List<String> inputPins = node.getInputPins();
         String aPinConstantValue = flow.getPinConstantValue(inputPins.get(0));
         if(aPinConstantValue != null) {
@@ -111,6 +113,33 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
         switch (node.getType()) {
             case "equals" -> {
                 sb.append(biOperator(flow, node, "=="));
+            }
+            case "notequals" -> {
+                sb.append(biOperator(flow, node, "!="));
+            }
+            case "greaterthan" -> {
+                sb.append(biOperator(flow, node, ">"));
+            }
+            case "lessthan" -> {
+                sb.append(biOperator(flow, node, "<>>"));
+            }
+            case "greaterthanequals" -> {
+                sb.append(biOperator(flow, node, ">="));
+            }
+            case "lessthanequals" -> {
+                sb.append(biOperator(flow, node, "<="));
+            }
+            case "add" -> {
+                sb.append(biOperator(flow, node, "+"));
+            }
+            case "subtract" -> {
+                sb.append(biOperator(flow, node, "-"));
+            }
+            case "multiply" -> {
+                sb.append(biOperator(flow, node, "*"));
+            }
+            case "divide" -> {
+                sb.append(biOperator(flow, node, "/"));
             }
             case "if" -> {
                 sb.append("if(");
