@@ -73,7 +73,14 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
 
         switch (node.getType()) {
             case "Print" -> {
-                sb.append(visitPrintNode(flow.getPinConstantValue(node.getInputPins().get(0))));
+                String pinConstantValue = flow.getPinConstantValue(node.getInputPins().get(0));
+                if(pinConstantValue != null) {
+                    sb.append("orint(\""+ pinConstantValue +"\");");
+                } else {
+                    List<String> inputPins = node.getInputPins();
+                    sb.append("orint("+ convertIdentifier(inputPins.get(0)) +");");
+                }
+
                 sb.append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("FlowOut")))));
             }
             default -> {
@@ -111,6 +118,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
             }
         }
 
+        sb.append("\n");
         return sb.toString();
        // throw new RuntimeException("Node " + node.getType() + " was not implemented!");
     }
@@ -166,10 +174,6 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
     @Override
     public boolean isAutoCastAllowed(String fromType, String toType) {
         return !fromType.equals(Constants.FlowType) && !toType.equals(Constants.FlowType);
-    }
-
-    public String visitPrintNode(String message) {
-        return "print(\"" + message + "\");\n";
     }
 
     private static List<NodeDefinition> nativeMethods = List.of(
