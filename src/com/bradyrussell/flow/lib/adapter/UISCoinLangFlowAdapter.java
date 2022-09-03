@@ -188,6 +188,24 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
                         .append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("false")))))
                         .append("}\n");
             }
+            case "while" -> {
+                sb.append("while(");
+                List<String> inputPins = node.getInputPins();
+                String pinConstantValue = flow.getPinConstantValue(inputPins.get(0));
+                if(pinConstantValue != null) {
+                    sb.append(resolveLiteral(pinConstantValue));
+                } else {
+                    String connectedPinId = flow.getConnectedPinId(inputPins.get(0));
+                    if(connectedPinId != null) {
+                        sb.append(convertIdentifier(connectedPinId));
+                    }
+                }
+
+                sb.append(") {\n\t")
+                        .append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("iteration")))))
+                        .append("}\n")
+                        .append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("done")))));
+            }
             default -> {
                 NodeDefinition nodeDefinition = flow.getNodeDefinition(node.getType());
                 if(node.getOutputPins().size() == 1) {
@@ -289,6 +307,12 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
     private static List<NodeDefinition> nativeMethods = List.of(
             new NodeDefinitionBuilder("print").addInput(new VariableDefinition("message", "void")).build(),
             new NodeDefinitionBuilder("code").addInput(new VariableDefinition("code", "void")).build(),
+            new NodeDefinitionBuilder("if").addInput(
+                    new VariableDefinition("condition", "byte")
+            ).addFlowOutput("true").addFlowOutput("false").build(),
+            new NodeDefinitionBuilder("while").addInput(
+                    new VariableDefinition("condition", "byte")
+            ).addFlowOutput("iteration").addFlowOutput("done").build(),
             new NodeDefinitionBuilder("equals").addInput(
                     new VariableDefinition("a", "void"),
                     new VariableDefinition("b", "void")
@@ -329,9 +353,6 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
                     new VariableDefinition("a", "void"),
                     new VariableDefinition("b", "void")
             ).addOutput(new VariableDefinition("result", "float")).build(),
-            new NodeDefinitionBuilder("if").addInput(
-                    new VariableDefinition("condition", "byte")
-            ).addFlowOutput("true").addFlowOutput("false").build(),
             new NodeDefinitionBuilder("set").addInput(
                     new VariableDefinition("location", "int32"),
                     new VariableDefinition("position", "int32"),
