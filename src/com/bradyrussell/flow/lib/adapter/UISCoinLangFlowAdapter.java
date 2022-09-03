@@ -111,6 +111,20 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
         StringBuilder sb = new StringBuilder();
 
         switch (node.getType()) {
+            case "code" -> {
+                List<String> inputPins = node.getInputPins();
+                String pinConstantValue = flow.getPinConstantValue(inputPins.get(0));
+                sb.append("/* Begin Code Node: ").append(node.getId()).append(" */");
+                if(pinConstantValue != null) {
+                    sb.append(resolveLiteral(pinConstantValue));
+                } else {
+                    String connectedPinId = flow.getConnectedPinId(inputPins.get(0));
+                    if(connectedPinId != null) {
+                        sb.append(convertIdentifier(connectedPinId));
+                    }
+                }
+                sb.append("/* End Code Node: ").append(node.getId()).append(" */");
+            }
             case "equals" -> {
                 sb.append(biOperator(flow, node, "=="));
             }
@@ -260,6 +274,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
 
     private static List<NodeDefinition> nativeMethods = List.of(
             new NodeDefinitionBuilder("print").addInput(new VariableDefinition("message", "void")).build(),
+            new NodeDefinitionBuilder("code").addInput(new VariableDefinition("code", "void")).build(),
             new NodeDefinitionBuilder("equals").addInput(
                     new VariableDefinition("a", "void"),
                     new VariableDefinition("b", "void")
