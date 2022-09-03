@@ -2,10 +2,17 @@ package com.bradyrussell.flow.lib.adapter;
 
 import com.bradyrussell.flow.lib.Constants;
 import com.bradyrussell.flow.lib.graph.*;
+import com.bradyrussell.flow.lib.graph.builder.NodeDefinitionBuilder;
+import com.bradyrussell.flow.lib.graph.builder.StructDefinitionBuilder;
 
 import java.util.List;
 
 public class UISCoinLangFlowAdapter implements FlowAdapter<String>{
+    @Override
+    public String getName() {
+        return "UISCoinLangFlowAdapter";
+    }
+
     @Override
     public boolean supportsArrays() {
         return true;
@@ -23,12 +30,12 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String>{
 
     @Override
     public List<StructDefinition> getNativeStructs() {
-        return List.of();
+        return List.of(new StructDefinitionBuilder("test_struct").setColor("red").addVariable(new VariableDefinition("test", "int32")).build());
     }
 
     @Override
     public List<NodeDefinition> getNativeNodes() {
-        return List.of();
+        return List.of(new NodeDefinitionBuilder("Print").addInput(new VariableDefinition("Message","void")).build());
     }
 
     @Override
@@ -68,7 +75,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String>{
             }
         }
 
-       return null;
+       throw new RuntimeException("Node "+node.getType()+" was not implemented!");
     }
 
     @Override

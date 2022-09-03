@@ -84,6 +84,26 @@ public class TestFlowSerialization {
     }
 
     @Test
+    void TestSerialization2() throws IOException {
+        //Arrange
+        Gson gson = Constants.gson.get();
+        String json = Files.readString(Path.of("C:\\Users\\brady\\Documents\\testFlow.fl"));
+
+        //Act
+        Flow df = gson.fromJson(json, Flow.class);
+        String json2 = gson.toJson(df);
+        System.out.println(json2);
+
+        //Assert
+        Assertions.assertEquals(json, json2);
+
+        Flow flow = gson.fromJson(json2, Flow.class);
+        flow.load();
+        UISCoinLangFlowAdapter uisCoinLangFlowAdapter = new UISCoinLangFlowAdapter();
+        System.out.println(uisCoinLangFlowAdapter.visitFlow(flow));
+    }
+
+    @Test
     public void TestFlowVisitor() throws IOException {
         Gson gson = Constants.gson.get();
         String flowJson = Files.readString(Path.of("example_flow.fl"));

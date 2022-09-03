@@ -6,6 +6,7 @@ import com.bradyrussell.flow.lib.graph.*;
 import java.util.List;
 
 public interface FlowAdapter<T> {
+    String getName();
     boolean supportsArrays();
     boolean supportsStructs();
 
