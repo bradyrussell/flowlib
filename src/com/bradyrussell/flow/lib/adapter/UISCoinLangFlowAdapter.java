@@ -113,7 +113,11 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
                     String pinConstantValue = flow.getPinConstantValue(inputPins.get(i));
                     if(pinConstantValue != null) {
                         //nodeDefinition.getInputs().get(i).getType()
-                        sb.append("\"").append(pinConstantValue).append("\"");
+                        if(isValidTypeLiteral("float", pinConstantValue)) {
+                            sb.append(pinConstantValue);
+                        } else {
+                            sb.append("\"").append(pinConstantValue).append("\"");
+                        }
                     } else {
                         String connectedPinId = flow.getConnectedPinId(inputPins.get(i));
                         if(connectedPinId != null) {
