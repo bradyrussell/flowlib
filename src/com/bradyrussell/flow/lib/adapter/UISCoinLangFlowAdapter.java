@@ -75,10 +75,15 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
             case "Print" -> {
                 String pinConstantValue = flow.getPinConstantValue(node.getInputPins().get(0));
                 if(pinConstantValue != null) {
-                    sb.append("orint(\""+ pinConstantValue +"\");");
+                    sb.append("orint(\"").append(pinConstantValue).append("\");");
                 } else {
                     List<String> inputPins = node.getInputPins();
-                    sb.append("print("+ convertIdentifier(flow.getConnectedPinId(inputPins.get(0))) +");");
+                    String connectedPinId = flow.getConnectedPinId(inputPins.get(0));
+                    if(connectedPinId != null) {
+                        sb.append("print(").append(convertIdentifier(connectedPinId)).append(");");
+                    } else {
+                        sb.append("print();");
+                    }
                 }
 
                 sb.append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("FlowOut")))));
