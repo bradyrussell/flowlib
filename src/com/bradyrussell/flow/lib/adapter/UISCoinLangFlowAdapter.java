@@ -264,6 +264,42 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
                     new VariableDefinition("a", "void"),
                     new VariableDefinition("b", "void")
             ).addOutput(new VariableDefinition("result", "byte")).build(),
+            new NodeDefinitionBuilder("notequals").addInput(
+                    new VariableDefinition("a", "void"),
+                    new VariableDefinition("b", "void")
+            ).addOutput(new VariableDefinition("result", "byte")).build(),
+            new NodeDefinitionBuilder("greaterthan").addInput(
+                    new VariableDefinition("a", "void"),
+                    new VariableDefinition("b", "void")
+            ).addOutput(new VariableDefinition("result", "byte")).build(),
+            new NodeDefinitionBuilder("lessthan").addInput(
+                    new VariableDefinition("a", "void"),
+                    new VariableDefinition("b", "void")
+            ).addOutput(new VariableDefinition("result", "byte")).build(),
+            new NodeDefinitionBuilder("greaterthanequals").addInput(
+                    new VariableDefinition("a", "void"),
+                    new VariableDefinition("b", "void")
+            ).addOutput(new VariableDefinition("result", "byte")).build(),
+            new NodeDefinitionBuilder("lessthanequals").addInput(
+                    new VariableDefinition("a", "void"),
+                    new VariableDefinition("b", "void")
+            ).addOutput(new VariableDefinition("result", "byte")).build(),
+            new NodeDefinitionBuilder("add").addInput(
+                    new VariableDefinition("a", "void"),
+                    new VariableDefinition("b", "void")
+            ).addOutput(new VariableDefinition("result", "byte")).build(),
+            new NodeDefinitionBuilder("subtract").addInput(
+                    new VariableDefinition("a", "void"),
+                    new VariableDefinition("b", "void")
+            ).addOutput(new VariableDefinition("result", "byte")).build(),
+            new NodeDefinitionBuilder("multiple").addInput(
+                    new VariableDefinition("a", "void"),
+                    new VariableDefinition("b", "void")
+            ).addOutput(new VariableDefinition("result", "byte")).build(),
+            new NodeDefinitionBuilder("divide").addInput(
+                    new VariableDefinition("a", "void"),
+                    new VariableDefinition("b", "void")
+            ).addOutput(new VariableDefinition("result", "byte")).build(),
             new NodeDefinitionBuilder("if").addInput(
                     new VariableDefinition("condition", "byte")
             ).addFlowOutput("true").addFlowOutput("false").build(),
