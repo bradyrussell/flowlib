@@ -27,6 +27,7 @@ public class StructDefinitionBuilder {
             vars = new ArrayList<>();
         }
         vars.add(variableDefinition);
+        structDefinition.setVariables(vars);
         return this;
     }
 

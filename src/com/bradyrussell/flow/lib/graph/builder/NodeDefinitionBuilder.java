@@ -20,6 +20,7 @@ public class NodeDefinitionBuilder {
             inputs = new ArrayList<>();
         }
         inputs.add(variableDefinition);
+        nodeDefinition.setInputs(inputs);
         return this;
     }
 
@@ -29,6 +30,7 @@ public class NodeDefinitionBuilder {
             outputs = new ArrayList<>();
         }
         outputs.add(variableDefinition);
+        nodeDefinition.setOutputs(outputs);
         return this;
     }
 
@@ -38,6 +40,7 @@ public class NodeDefinitionBuilder {
             inputs = new ArrayList<>();
         }
         inputs.add(flowInput);
+        nodeDefinition.setFlowInputs(inputs);
         return this;
     }
 
@@ -47,6 +50,7 @@ public class NodeDefinitionBuilder {
             outputs = new ArrayList<>();
         }
         outputs.add(flowOutput);
+        nodeDefinition.setFlowOutputs(outputs);
         return this;
     }
 
