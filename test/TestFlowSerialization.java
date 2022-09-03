@@ -5,6 +5,7 @@ import com.bradyrussell.flow.lib.repository.FlowDependency;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -83,7 +84,7 @@ public class TestFlowSerialization {
         Assertions.assertEquals(json, json2);
     }
 
-    @Test
+    @Test @Disabled
     void TestSerialization2() throws IOException {
         //Arrange
         Gson gson = Constants.gson.get();

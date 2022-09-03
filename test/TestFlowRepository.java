@@ -8,6 +8,7 @@ import com.bradyrussell.flow.lib.repository.rest.RestFlowRepository;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
@@ -60,7 +61,7 @@ public class TestFlowRepository {
         Assertions.assertFalse(FlowDependency.fromDependencyString("com.bradyrussell.flow.MyExampleFlow:1.0.0-snapshot|2.0.0-snapshot@rest://https://uiscoin.com").isMatchingArtifact("com.bradyrussell.flow.MyExampleFlow:3.0.0-snapshot@rest://https://uiscoin.com"));
     }
 
-    @Test
+    @Test @Disabled
     void TestGetFlow() throws ExecutionException, InterruptedException {
         Gson gson = Constants.gson.get();
         RestFlowRepository repository = new RestFlowRepository("https://uiscoin.com");
