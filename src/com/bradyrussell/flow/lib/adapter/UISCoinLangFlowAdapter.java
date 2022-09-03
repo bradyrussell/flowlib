@@ -72,10 +72,10 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
         StringBuilder sb = new StringBuilder();
 
         switch (node.getType()) {
-            case "Print" -> {
+/*            case "Print" -> {
                 String pinConstantValue = flow.getPinConstantValue(node.getInputPins().get(0));
                 if(pinConstantValue != null) {
-                    sb.append("orint(\"").append(pinConstantValue).append("\");");
+                    sb.append("print(\"").append(pinConstantValue).append("\");");
                 } else {
                     List<String> inputPins = node.getInputPins();
                     String connectedPinId = flow.getConnectedPinId(inputPins.get(0));
@@ -87,7 +87,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
                 }
 
                 sb.append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("FlowOut")))));
-            }
+            }*/
             default -> {
                 NodeDefinition nodeDefinition = flow.getNodeDefinition(node.getType());
                 if(node.getOutputPins().size() == 1) {
@@ -114,11 +114,14 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
                     if(pinConstantValue != null) {
                         sb.append(pinConstantValue);
                     } else {
-                        sb.append(convertIdentifier(inputPins.get(i)));
+                        String connectedPinId = flow.getConnectedPinId(inputPins.get(0));
+                        if(connectedPinId != null) {
+                            sb.append(convertIdentifier(connectedPinId));
+                        }
                     }
                 }
 
-                sb.append(");");
+                sb.append(");\n");
                 sb.append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("FlowOut")))));
             }
         }
@@ -182,7 +185,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
     }
 
     private static List<NodeDefinition> nativeMethods = List.of(
-            new NodeDefinitionBuilder("Print").addInput(new VariableDefinition("Message", "void")).build(),
+            new NodeDefinitionBuilder("print").addInput(new VariableDefinition("message", "void")).build(),
             new NodeDefinitionBuilder("set").addInput(
                     new VariableDefinition("location", "int32"),
                     new VariableDefinition("position", "int32"),
