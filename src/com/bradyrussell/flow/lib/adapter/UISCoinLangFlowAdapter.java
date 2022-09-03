@@ -89,11 +89,11 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
 
         sb.append(" ").append(operator).append(" ");
 
-        String bPinConstantValue = flow.getPinConstantValue(inputPins.get(0));
+        String bPinConstantValue = flow.getPinConstantValue(inputPins.get(1));
         if(bPinConstantValue != null) {
             sb.append(resolveLiteral(bPinConstantValue));
         } else {
-            String connectedPinId = flow.getConnectedPinId(inputPins.get(0));
+            String connectedPinId = flow.getConnectedPinId(inputPins.get(1));
             if(connectedPinId != null) {
                 sb.append(convertIdentifier(connectedPinId));
             }
@@ -292,7 +292,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
                     new VariableDefinition("a", "void"),
                     new VariableDefinition("b", "void")
             ).addOutput(new VariableDefinition("result", "float")).build(),
-            new NodeDefinitionBuilder("multiple").addInput(
+            new NodeDefinitionBuilder("multiply").addInput(
                     new VariableDefinition("a", "void"),
                     new VariableDefinition("b", "void")
             ).addOutput(new VariableDefinition("result", "float")).build(),
