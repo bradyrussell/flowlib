@@ -72,22 +72,29 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
         StringBuilder sb = new StringBuilder();
 
         switch (node.getType()) {
-/*            case "Print" -> {
-                String pinConstantValue = flow.getPinConstantValue(node.getInputPins().get(0));
+            case "if" -> {
+                sb.append("if(");
+                List<String> inputPins = node.getInputPins();
+                String pinConstantValue = flow.getPinConstantValue(inputPins.get(0));
                 if(pinConstantValue != null) {
-                    sb.append("print(\"").append(pinConstantValue).append("\");");
+                    if(isValidTypeLiteral("float", pinConstantValue)) {
+                        sb.append(pinConstantValue);
+                    } else {
+                        sb.append("\"").append(pinConstantValue).append("\"");
+                    }
                 } else {
-                    List<String> inputPins = node.getInputPins();
                     String connectedPinId = flow.getConnectedPinId(inputPins.get(0));
                     if(connectedPinId != null) {
-                        sb.append("print(").append(convertIdentifier(connectedPinId)).append(");");
-                    } else {
-                        sb.append("print();");
+                        sb.append(convertIdentifier(connectedPinId));
                     }
                 }
 
-                sb.append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("FlowOut")))));
-            }*/
+                sb.append(") {\n\t")
+                        .append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("true")))))
+                        .append("}\nelse {\n\t")
+                        .append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("false")))))
+                        .append("}\n");
+            }
             default -> {
                 NodeDefinition nodeDefinition = flow.getNodeDefinition(node.getType());
                 if(node.getOutputPins().size() == 1) {
@@ -194,6 +201,9 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
 
     private static List<NodeDefinition> nativeMethods = List.of(
             new NodeDefinitionBuilder("print").addInput(new VariableDefinition("message", "void")).build(),
+            new NodeDefinitionBuilder("if").addInput(
+                    new VariableDefinition("condition", "byte")
+            ).addFlowOutput("true").addFlowOutput("false").build(),
             new NodeDefinitionBuilder("set").addInput(
                     new VariableDefinition("location", "int32"),
                     new VariableDefinition("position", "int32"),

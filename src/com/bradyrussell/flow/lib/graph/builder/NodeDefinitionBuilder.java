@@ -39,6 +39,8 @@ public class NodeDefinitionBuilder {
         List<String> inputs = nodeDefinition.getFlowInputs();
         if(inputs == null) {
             inputs = new ArrayList<>();
+        } else {
+            inputs = new ArrayList<>(inputs);
         }
         inputs.addAll(Arrays.asList(flowInput));
         nodeDefinition.setFlowInputs(inputs);
@@ -49,6 +51,8 @@ public class NodeDefinitionBuilder {
         List<String> outputs = nodeDefinition.getFlowOutputs();
         if(outputs == null) {
             outputs = new ArrayList<>();
+        } else {
+            outputs = new ArrayList<>(outputs);
         }
         outputs.addAll(Arrays.asList(flowOutput));
         nodeDefinition.setFlowOutputs(outputs);
