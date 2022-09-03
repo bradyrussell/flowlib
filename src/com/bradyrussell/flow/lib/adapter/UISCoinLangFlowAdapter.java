@@ -7,7 +7,7 @@ import com.bradyrussell.flow.lib.graph.builder.StructDefinitionBuilder;
 
 import java.util.List;
 
-public class UISCoinLangFlowAdapter implements FlowAdapter<String>{
+public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
     @Override
     public String getName() {
         return "UISCoinLangFlowAdapter";
@@ -35,7 +35,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String>{
 
     @Override
     public List<NodeDefinition> getNativeNodes() {
-        return List.of(new NodeDefinitionBuilder("Print").addInput(new VariableDefinition("Message","void")).build());
+        return nativeMethods;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String>{
 
     @Override
     public String visitVariableDeclaration(Flow flow, VariableDefinition variable) {
-        return variable.getType() + (variable.getPointer() ? "@" : "") + " " + variable.getId() + (variable.getArray() ? "["+variable.getArrayLength()+"]" : "")+";\n";
+        return variable.getType() + (variable.getPointer() ? "@" : "") + " " + variable.getId() + (variable.getArray() ? "[" + variable.getArrayLength() + "]" : "") + ";\n";
     }
 
     @Override
@@ -65,7 +65,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String>{
 
     @Override
     public String visitNode(Flow flow, Node node) {
-        if(node == null) {
+        if (node == null) {
             return "END";
         }
 
@@ -73,9 +73,38 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String>{
             case "Print" -> {
                 return visitPrintNode(flow.getPinConstantValue(node.getInputPins().get(0))) + visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("FlowOut"))));
             }
+            default -> {
+                StringBuilder sb = new StringBuilder();
+
+                NodeDefinition nodeDefinition = flow.getNodeDefinition(node.getType());
+                if(node.getOutputPins().size() == 1) {
+                    sb.append(nodeDefinition.getInputs().get(0).getType()).append(" ").append(node.getOutputPins().get(0)).append(" = ");
+                } else if(node.getOutputPins().size() > 1) {
+                    sb.append("(");
+                    List<String> outputPins = node.getOutputPins();
+                    for (int i = 0; i < outputPins.size(); i++) {
+                        sb.append(nodeDefinition.getOutputs().get(i).getType());
+                        sb.append(" ");
+                        sb.append(outputPins.get(i));
+                        if(i < outputPins.size()-1) {
+                            sb.append(",");
+                        }
+                    }
+                    sb.append(") = ");
+                }
+
+                sb.append("_"+node.getType()+"(");
+
+                List<String> inputPins = node.getInputPins();
+                for (int i = 0; i < inputPins.size(); i++) {
+                    sb.append(inputPins.get(i));
+                }
+
+                sb.append(");");
+            }
         }
 
-       throw new RuntimeException("Node "+node.getType()+" was not implemented!");
+        throw new RuntimeException("Node " + node.getType() + " was not implemented!");
     }
 
     @Override
@@ -85,7 +114,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String>{
                 try {
                     Byte.parseByte(literal);
                     return true;
-                } catch (NumberFormatException e){
+                } catch (NumberFormatException e) {
                     return false;
                 }
             }
@@ -93,7 +122,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String>{
                 try {
                     Integer.parseInt(literal);
                     return true;
-                } catch (NumberFormatException e){
+                } catch (NumberFormatException e) {
                     return false;
                 }
             }
@@ -101,7 +130,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String>{
                 try {
                     Long.parseLong(literal);
                     return true;
-                } catch (NumberFormatException e){
+                } catch (NumberFormatException e) {
                     return false;
                 }
             }
@@ -109,7 +138,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String>{
                 try {
                     Float.parseFloat(literal);
                     return true;
-                } catch (NumberFormatException e){
+                } catch (NumberFormatException e) {
                     return false;
                 }
             }
@@ -128,16 +157,57 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String>{
     }
 
     public String visitPrintNode(String message) {
-        return "print(\""+message+"\");\n";
+        return "print(\"" + message + "\");\n";
     }
 
     private static List<NodeDefinition> nativeMethods = List.of(
-        new NodeDefinitionBuilder("set").addInput(
-                new VariableDefinition("location", "int32"),
-                new VariableDefinition("position", "int32"),
-                new VariableDefinition("length", "int32"),
-                new VariableDefinition("value", "int32")
-        ).build()
-
+            new NodeDefinitionBuilder("Print").addInput(new VariableDefinition("Message", "void")).build(),
+            new NodeDefinitionBuilder("set").addInput(
+                    new VariableDefinition("location", "int32"),
+                    new VariableDefinition("position", "int32"),
+                    new VariableDefinition("length", "int32"),
+                    new VariableDefinition("value", "int32")
+            ).build(),
+            new NodeDefinitionBuilder("get").addInput(
+                    new VariableDefinition("location", "int32"),
+                    new VariableDefinition("position", "int32"),
+                    new VariableDefinition("length", "int32")
+            ).addOutput(
+                    new VariableDefinition("value", "int32")
+            ).build(),
+            new NodeDefinitionBuilder("encrypt").addInput(
+                    new VariableDefinition("key", "byte", 0),
+                    new VariableDefinition("data", "byte", 0)
+            ).addOutput(
+                    new VariableDefinition("result", "byte", 0)
+            ).build(),
+            new NodeDefinitionBuilder("decrypt").addInput(
+                    new VariableDefinition("key", "byte", 0),
+                    new VariableDefinition("data", "byte", 0)
+            ).addOutput(
+                    new VariableDefinition("result", "byte", 0)
+            ).build(),
+            new NodeDefinitionBuilder("alloc").addInput(
+                    new VariableDefinition("location", "int32"),
+                    new VariableDefinition("size", "int32")
+            ).build(),
+            new NodeDefinitionBuilder("zip").addInput(
+                    new VariableDefinition("data", "byte", 0)
+            ).addOutput(
+                    new VariableDefinition("result", "byte", 0)
+            ).build(),
+            new NodeDefinitionBuilder("unzip").addInput(
+                    new VariableDefinition("data", "byte", 0)
+            ).addOutput(
+                    new VariableDefinition("result", "byte", 0)
+            ).build(),
+            new NodeDefinitionBuilder("sha512").addInput(
+                    new VariableDefinition("data", "byte", 0)
+            ).addOutput(
+                    new VariableDefinition("result", "byte", 0)
+            ).build(),
+            new NodeDefinitionBuilder("instruction").addOutput(
+                    new VariableDefinition("instruction", "int32")
+            ).build()
     );
 }
