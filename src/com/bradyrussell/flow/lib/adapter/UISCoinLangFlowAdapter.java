@@ -5,6 +5,7 @@ import com.bradyrussell.flow.lib.graph.*;
 import com.bradyrussell.flow.lib.graph.builder.NodeDefinitionBuilder;
 import com.bradyrussell.flow.lib.graph.builder.StructDefinitionBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
@@ -68,14 +69,14 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
         if (node == null) {
             return "END";
         }
+        StringBuilder sb = new StringBuilder();
 
         switch (node.getType()) {
             case "Print" -> {
-                return visitPrintNode(flow.getPinConstantValue(node.getInputPins().get(0))) + visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("FlowOut"))));
+                sb.append(visitPrintNode(flow.getPinConstantValue(node.getInputPins().get(0))));
+                sb.append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("FlowOut")))));
             }
             default -> {
-                StringBuilder sb = new StringBuilder();
-
                 NodeDefinition nodeDefinition = flow.getNodeDefinition(node.getType());
                 if(node.getOutputPins().size() == 1) {
                     sb.append(nodeDefinition.getOutputs().get(0).getType()).append(" ").append(convertIdentifier(node.getOutputPins().get(0))).append(" = ");
@@ -106,10 +107,11 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
                 }
 
                 sb.append(");");
-                return sb.toString();
+                sb.append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("FlowOut")))));
             }
         }
 
+        return sb.toString();
        // throw new RuntimeException("Node " + node.getType() + " was not implemented!");
     }
 
