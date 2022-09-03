@@ -96,11 +96,19 @@ public class Node {
     }
 
     public List<String> getInputPins() {
-        return getFlow().getNodeDefinition(getType()).getInputs().stream().map((variableDefinition -> getPinId(variableDefinition.getId()))).collect(Collectors.toList());
+        List<VariableDefinition> inputs = getFlow().getNodeDefinition(getType()).getInputs();
+        if(inputs == null) {
+            return List.of();
+        }
+        return inputs.stream().map((variableDefinition -> getPinId(variableDefinition.getId()))).collect(Collectors.toList());
     }
 
     public List<String> getOutputPins() {
-        return List.of(getPinId("todo"));
+        List<VariableDefinition> outputs = getFlow().getNodeDefinition(getType()).getOutputs();
+        if(outputs == null) {
+            return List.of();
+        }
+        return outputs.stream().map((variableDefinition -> getPinId(variableDefinition.getId()))).collect(Collectors.toList());
     }
 
     public List<String> getPins() {
