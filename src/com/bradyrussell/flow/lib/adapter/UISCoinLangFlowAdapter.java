@@ -78,14 +78,14 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
 
                 NodeDefinition nodeDefinition = flow.getNodeDefinition(node.getType());
                 if(node.getOutputPins().size() == 1) {
-                    sb.append(nodeDefinition.getOutputs().get(0).getType()).append(" ").append(node.getOutputPins().get(0)).append(" = ");
+                    sb.append(nodeDefinition.getOutputs().get(0).getType()).append(" ").append(convertIdentifier(node.getOutputPins().get(0))).append(" = ");
                 } else if(node.getOutputPins().size() > 1) {
                     sb.append("(");
                     List<String> outputPins = node.getOutputPins();
                     for (int i = 0; i < outputPins.size(); i++) {
                         sb.append(nodeDefinition.getOutputs().get(i).getType());
                         sb.append(" ");
-                        sb.append(outputPins.get(i));
+                        sb.append(convertIdentifier(outputPins.get(i)));
                         if(i < outputPins.size()-1) {
                             sb.append(",");
                         }
@@ -93,11 +93,16 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
                     sb.append(") = ");
                 }
 
-                sb.append("_"+node.getType()+"(");
+                sb.append("_").append(node.getType()).append("(");
 
                 List<String> inputPins = node.getInputPins();
                 for (int i = 0; i < inputPins.size(); i++) {
-                    sb.append(inputPins.get(i));
+                    String pinConstantValue = flow.getPinConstantValue(inputPins.get(i));
+                    if(pinConstantValue != null) {
+                        sb.append(pinConstantValue);
+                    } else {
+                        sb.append(convertIdentifier(inputPins.get(i)));
+                    }
                 }
 
                 sb.append(");");
@@ -106,6 +111,10 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
         }
 
        // throw new RuntimeException("Node " + node.getType() + " was not implemented!");
+    }
+
+    private String convertIdentifier(String input) {
+        return input.replace("#","_").replace(".","__");
     }
 
     @Override
