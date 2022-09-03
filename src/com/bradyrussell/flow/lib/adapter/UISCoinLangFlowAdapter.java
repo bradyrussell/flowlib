@@ -121,7 +121,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
                 sb.append(biOperator(flow, node, ">"));
             }
             case "lessthan" -> {
-                sb.append(biOperator(flow, node, "<>>"));
+                sb.append(biOperator(flow, node, "<"));
             }
             case "greaterthanequals" -> {
                 sb.append(biOperator(flow, node, ">="));
@@ -287,19 +287,19 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
             new NodeDefinitionBuilder("add").addInput(
                     new VariableDefinition("a", "void"),
                     new VariableDefinition("b", "void")
-            ).addOutput(new VariableDefinition("result", "byte")).build(),
+            ).addOutput(new VariableDefinition("result", "float")).build(),
             new NodeDefinitionBuilder("subtract").addInput(
                     new VariableDefinition("a", "void"),
                     new VariableDefinition("b", "void")
-            ).addOutput(new VariableDefinition("result", "byte")).build(),
+            ).addOutput(new VariableDefinition("result", "float")).build(),
             new NodeDefinitionBuilder("multiple").addInput(
                     new VariableDefinition("a", "void"),
                     new VariableDefinition("b", "void")
-            ).addOutput(new VariableDefinition("result", "byte")).build(),
+            ).addOutput(new VariableDefinition("result", "float")).build(),
             new NodeDefinitionBuilder("divide").addInput(
                     new VariableDefinition("a", "void"),
                     new VariableDefinition("b", "void")
-            ).addOutput(new VariableDefinition("result", "byte")).build(),
+            ).addOutput(new VariableDefinition("result", "float")).build(),
             new NodeDefinitionBuilder("if").addInput(
                     new VariableDefinition("condition", "byte")
             ).addFlowOutput("true").addFlowOutput("false").build(),
