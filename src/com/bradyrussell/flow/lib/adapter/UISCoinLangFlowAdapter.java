@@ -7,6 +7,8 @@ import com.bradyrussell.flow.lib.graph.builder.StructDefinitionBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
     @Override
@@ -103,6 +105,41 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
         return sb.toString();
     }
 
+    private String structOperator(Flow flow, Node node, String structType, boolean isMake) {
+        StringBuilder sb = new StringBuilder();
+        Optional<StructDefinition> structDefinition = flow.getStructs().stream().filter(s -> Objects.equals(s.getId(), structType)).findFirst();
+        NodeDefinition nodeDefinition = flow.getNodeDefinition(node.getType());
+
+        if(structDefinition.isEmpty()) {
+            throw new RuntimeException("No such struct: \"" + structType + "\"");
+        }
+
+        if(isMake) {
+            // type name;
+            String structIdentifier = convertIdentifier(node.getOutputPins().get(0));
+            sb.append(nodeDefinition.getOutputs().get(0).getType()).append(" ").append(structIdentifier).append(";");
+
+            List<String> inputPins = node.getInputPins();
+            for (String inputPin : inputPins) {
+                String pinConstantValue = flow.getPinConstantValue(inputPin);
+                if(pinConstantValue != null) {
+                    // name.variable = literal;
+                    sb.append(structIdentifier).append(".").append(convertIdentifier(inputPin)).append(" = ").append(resolveLiteral(pinConstantValue)).append(";");
+                } else {
+                    String connectedPinId = flow.getConnectedPinId(inputPin);
+                    if(connectedPinId != null) {
+                        // name.variable = inputVariable;
+                        sb.append(structIdentifier).append(".").append(convertIdentifier(inputPin)).append(" = ").append(convertIdentifier(connectedPinId)).append(";");
+                    }
+                }
+            }
+        }
+
+        sb.append("\n");
+        sb.append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("FlowOut")))));
+        return sb.toString();
+    }
+
     @Override
     public String visitNode(Flow flow, Node node) {
         if (node == null) {
@@ -110,140 +147,146 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
         }
         StringBuilder sb = new StringBuilder();
 
-        switch (node.getType()) {
-            case "code" -> {
-                List<String> inputPins = node.getInputPins();
-                String pinConstantValue = flow.getPinConstantValue(inputPins.get(0));
-                sb.append("/* Begin Code Node: ").append(node.getId()).append(" */\n");
-                if(pinConstantValue != null) {
-                    sb.append(resolveLiteral(pinConstantValue));
-                } else {
-                    String connectedPinId = flow.getConnectedPinId(inputPins.get(0));
-                    if(connectedPinId != null) {
-                        sb.append(convertIdentifier(connectedPinId));
-                    }
-                }
-                sb.append("\n/* End Code Node: ").append(node.getId()).append(" */\n");
-            }
-            case "not" -> {
-                NodeDefinition nodeDefinition = flow.getNodeDefinition(node.getType());
-                sb.append(nodeDefinition.getOutputs().get(0).getType()).append(" ").append(convertIdentifier(node.getOutputPins().get(0))).append(" = !");
-                List<String> inputPins = node.getInputPins();
-                String aPinConstantValue = flow.getPinConstantValue(inputPins.get(0));
-                if(aPinConstantValue != null) {
-                    sb.append(resolveLiteral(aPinConstantValue));
-                } else {
-                    String connectedPinId = flow.getConnectedPinId(inputPins.get(0));
-                    if(connectedPinId != null) {
-                        sb.append(convertIdentifier(connectedPinId));
-                    }
-                }
-            }
-            case "equals" -> {
-                sb.append(biOperator(flow, node, "=="));
-            }
-            case "notequals" -> {
-                sb.append(biOperator(flow, node, "!="));
-            }
-            case "greaterthan" -> {
-                sb.append(biOperator(flow, node, ">"));
-            }
-            case "lessthan" -> {
-                sb.append(biOperator(flow, node, "<"));
-            }
-            case "greaterthanequals" -> {
-                sb.append(biOperator(flow, node, ">="));
-            }
-            case "lessthanequals" -> {
-                sb.append(biOperator(flow, node, "<="));
-            }
-            case "add" -> {
-                sb.append(biOperator(flow, node, "+"));
-            }
-            case "subtract" -> {
-                sb.append(biOperator(flow, node, "-"));
-            }
-            case "multiply" -> {
-                sb.append(biOperator(flow, node, "*"));
-            }
-            case "divide" -> {
-                sb.append(biOperator(flow, node, "/"));
-            }
-            case "if" -> {
-                sb.append("if(");
-                List<String> inputPins = node.getInputPins();
-                String pinConstantValue = flow.getPinConstantValue(inputPins.get(0));
-                if(pinConstantValue != null) {
-                    sb.append(resolveLiteral(pinConstantValue));
-                } else {
-                    String connectedPinId = flow.getConnectedPinId(inputPins.get(0));
-                    if(connectedPinId != null) {
-                        sb.append(convertIdentifier(connectedPinId));
-                    }
-                }
-
-                sb.append(") {\n\t")
-                        .append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("true")))))
-                        .append("}\nelse {\n\t")
-                        .append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("false")))))
-                        .append("}\n");
-            }
-            case "while" -> {
-                sb.append("while(");
-                List<String> inputPins = node.getInputPins();
-                String pinConstantValue = flow.getPinConstantValue(inputPins.get(0));
-                if(pinConstantValue != null) {
-                    sb.append(resolveLiteral(pinConstantValue));
-                } else {
-                    String connectedPinId = flow.getConnectedPinId(inputPins.get(0));
-                    if(connectedPinId != null) {
-                        sb.append(convertIdentifier(connectedPinId));
-                    }
-                }
-
-                sb.append(") {\n\t")
-                        .append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("iteration")))))
-                        .append("}\n")
-                        .append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("done")))));
-            }
-            default -> {
-                NodeDefinition nodeDefinition = flow.getNodeDefinition(node.getType());
-                if(node.getOutputPins().size() == 1) {
-                    sb.append(nodeDefinition.getOutputs().get(0).getType()).append(" ").append(convertIdentifier(node.getOutputPins().get(0))).append(" = ");
-                } else if(node.getOutputPins().size() > 1) {
-                    sb.append("(");
-                    List<String> outputPins = node.getOutputPins();
-                    for (int i = 0; i < outputPins.size(); i++) {
-                        sb.append(nodeDefinition.getOutputs().get(i).getType());
-                        sb.append(" ");
-                        sb.append(convertIdentifier(outputPins.get(i)));
-                        if(i < outputPins.size()-1) {
-                            sb.append(",");
-                        }
-                    }
-                    sb.append(") = ");
-                }
-
-                sb.append("_").append(node.getType()).append("(");
-
-                List<String> inputPins = node.getInputPins();
-                for (int i = 0; i < inputPins.size(); i++) {
-                    String pinConstantValue = flow.getPinConstantValue(inputPins.get(i));
+        if(node.getType().startsWith("makestruct_") || node.getType().startsWith("breakstruct_")) {
+            String[] split = node.getType().split("_", 2);
+            String structType = split[1];
+            sb.append(structOperator(flow, node, structType, node.getType().startsWith("makestruct_")));
+        } else {
+            switch (node.getType()) {
+                case "code" -> {
+                    List<String> inputPins = node.getInputPins();
+                    String pinConstantValue = flow.getPinConstantValue(inputPins.get(0));
+                    sb.append("/* Begin Code Node: ").append(node.getId()).append(" */\n");
                     if(pinConstantValue != null) {
                         sb.append(resolveLiteral(pinConstantValue));
                     } else {
-                        String connectedPinId = flow.getConnectedPinId(inputPins.get(i));
+                        String connectedPinId = flow.getConnectedPinId(inputPins.get(0));
                         if(connectedPinId != null) {
                             sb.append(convertIdentifier(connectedPinId));
                         }
                     }
-                    if(i < inputPins.size()-1) {
-                        sb.append(",");
+                    sb.append("\n/* End Code Node: ").append(node.getId()).append(" */\n");
+                }
+                case "not" -> {
+                    NodeDefinition nodeDefinition = flow.getNodeDefinition(node.getType());
+                    sb.append(nodeDefinition.getOutputs().get(0).getType()).append(" ").append(convertIdentifier(node.getOutputPins().get(0))).append(" = !");
+                    List<String> inputPins = node.getInputPins();
+                    String aPinConstantValue = flow.getPinConstantValue(inputPins.get(0));
+                    if(aPinConstantValue != null) {
+                        sb.append(resolveLiteral(aPinConstantValue));
+                    } else {
+                        String connectedPinId = flow.getConnectedPinId(inputPins.get(0));
+                        if(connectedPinId != null) {
+                            sb.append(convertIdentifier(connectedPinId));
+                        }
                     }
                 }
+                case "equals" -> {
+                    sb.append(biOperator(flow, node, "=="));
+                }
+                case "notequals" -> {
+                    sb.append(biOperator(flow, node, "!="));
+                }
+                case "greaterthan" -> {
+                    sb.append(biOperator(flow, node, ">"));
+                }
+                case "lessthan" -> {
+                    sb.append(biOperator(flow, node, "<"));
+                }
+                case "greaterthanequals" -> {
+                    sb.append(biOperator(flow, node, ">="));
+                }
+                case "lessthanequals" -> {
+                    sb.append(biOperator(flow, node, "<="));
+                }
+                case "add" -> {
+                    sb.append(biOperator(flow, node, "+"));
+                }
+                case "subtract" -> {
+                    sb.append(biOperator(flow, node, "-"));
+                }
+                case "multiply" -> {
+                    sb.append(biOperator(flow, node, "*"));
+                }
+                case "divide" -> {
+                    sb.append(biOperator(flow, node, "/"));
+                }
+                case "if" -> {
+                    sb.append("if(");
+                    List<String> inputPins = node.getInputPins();
+                    String pinConstantValue = flow.getPinConstantValue(inputPins.get(0));
+                    if(pinConstantValue != null) {
+                        sb.append(resolveLiteral(pinConstantValue));
+                    } else {
+                        String connectedPinId = flow.getConnectedPinId(inputPins.get(0));
+                        if(connectedPinId != null) {
+                            sb.append(convertIdentifier(connectedPinId));
+                        }
+                    }
 
-                sb.append(");\n");
-                sb.append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("FlowOut")))));
+                    sb.append(") {\n\t")
+                            .append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("true")))))
+                            .append("}\nelse {\n\t")
+                            .append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("false")))))
+                            .append("}\n");
+                }
+                case "while" -> {
+                    sb.append("while(");
+                    List<String> inputPins = node.getInputPins();
+                    String pinConstantValue = flow.getPinConstantValue(inputPins.get(0));
+                    if(pinConstantValue != null) {
+                        sb.append(resolveLiteral(pinConstantValue));
+                    } else {
+                        String connectedPinId = flow.getConnectedPinId(inputPins.get(0));
+                        if(connectedPinId != null) {
+                            sb.append(convertIdentifier(connectedPinId));
+                        }
+                    }
+
+                    sb.append(") {\n\t")
+                            .append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("iteration")))))
+                            .append("}\n")
+                            .append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("done")))));
+                }
+                default -> {
+                    NodeDefinition nodeDefinition = flow.getNodeDefinition(node.getType());
+                    if(node.getOutputPins().size() == 1) {
+                        sb.append(nodeDefinition.getOutputs().get(0).getType()).append(" ").append(convertIdentifier(node.getOutputPins().get(0))).append(" = ");
+                    } else if(node.getOutputPins().size() > 1) {
+                        sb.append("(");
+                        List<String> outputPins = node.getOutputPins();
+                        for (int i = 0; i < outputPins.size(); i++) {
+                            sb.append(nodeDefinition.getOutputs().get(i).getType());
+                            sb.append(" ");
+                            sb.append(convertIdentifier(outputPins.get(i)));
+                            if(i < outputPins.size()-1) {
+                                sb.append(",");
+                            }
+                        }
+                        sb.append(") = ");
+                    }
+
+                    sb.append("_").append(node.getType()).append("(");
+
+                    List<String> inputPins = node.getInputPins();
+                    for (int i = 0; i < inputPins.size(); i++) {
+                        String pinConstantValue = flow.getPinConstantValue(inputPins.get(i));
+                        if(pinConstantValue != null) {
+                            sb.append(resolveLiteral(pinConstantValue));
+                        } else {
+                            String connectedPinId = flow.getConnectedPinId(inputPins.get(i));
+                            if(connectedPinId != null) {
+                                sb.append(convertIdentifier(connectedPinId));
+                            }
+                        }
+                        if(i < inputPins.size()-1) {
+                            sb.append(",");
+                        }
+                    }
+
+                    sb.append(");\n");
+                    sb.append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("FlowOut")))));
+                }
             }
         }
 
