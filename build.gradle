@@ -11,11 +11,13 @@ repositories {
 	mavenCentral()
 
 	maven {
-		url "https://repo.bradyrussell.com/repository/bradyrussell-release/"
+		url "http://repo.bradyrussell.com/repository/bradyrussell-release/"
+		allowInsecureProtocol(true)
 	}
 
 	maven {
-		url "https://repo.bradyrussell.com/repository/bradyrussell-snapshot/"
+		url "http://repo.bradyrussell.com/repository/bradyrussell-snapshot/"
+		allowInsecureProtocol(true)
 	}
 }
 
@@ -28,7 +30,8 @@ publishing {
 
 	repositories {
 		maven {
-			url = version.endsWith('SNAPSHOT') ? "https://repo.bradyrussell.com/repository/bradyrussell-snapshot/" : "https://repo.bradyrussell.com/repository/bradyrussell-release/"
+			allowInsecureProtocol(true)
+			url = version.endsWith('SNAPSHOT') ? "http://repo.bradyrussell.com/repository/bradyrussell-snapshot/" : "http://repo.bradyrussell.com/repository/bradyrussell-release/"
 			credentials {
 				username = repoUsername
 				password = repoPassword
