@@ -137,9 +137,6 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
         StringBuilder sb = new StringBuilder();
         NodeDefinition nodeDefinition = flow.getNodeDefinition(node.getType());
         Optional<StructDefinition> structDefinition = flow.getStructs().stream().filter(s -> Objects.equals(s.getId(), structType)).findFirst();
-/*        if(structDefinition.isEmpty()) {
-            structDefinition = getNativeStructs().stream().filter(s -> Objects.equals(s.getId(), structType)).findFirst();
-        }*/
 
         if(structDefinition.isEmpty()) {
             throw new RuntimeException("No such struct: \"" + structType + "\"");
@@ -165,8 +162,21 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
                     }
                 }
             }
+        } else {
+            String structInputPinId = flow.getConnectedPinId(node.getInputPins().get(0));
+            if (structInputPinId != null) {
+                String structIdentifier = convertIdentifier(structInputPinId);
+                List<String> outputPins = node.getOutputPins();
+                for (int i = 0; i < outputPins.size(); i++) {
+                    String outputPin = outputPins.get(i);
+                    String connectedPinId = flow.getConnectedPinId(outputPin);
+                    if (connectedPinId != null) {
+                        // type1 name1 = struct.field;
+                        sb.append(nodeDefinition.getOutputs().get(i).getType()).append(" ").append(convertIdentifier(node.getPinId(nodeDefinition.getOutputs().get(i).getId()))).append(" = ").append(structIdentifier).append(".").append(nodeDefinition.getOutputs().get(i).getId()).append(";\n");
+                    }
+                }
+            }
         }
-
         sb.append("\n");
         sb.append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("FlowOut")))));
         return sb.toString();
