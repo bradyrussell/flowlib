@@ -128,7 +128,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
             NodeDefinition makeNodeDefinition = makeNodeDefinitionBuilder.build();
 
             // type name;
-            String structIdentifier = convertIdentifier(node.getOutputPins().get(0));
+            String structIdentifier = convertIdentifier(node.getPinId(makeNodeDefinition.getOutputs().get(0).getId()));
             sb.append(makeNodeDefinition.getOutputs().get(0).getType()).append(" ").append(structIdentifier).append(";");
 
             List<String> inputPins = node.getInputPins();
