@@ -47,6 +47,34 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
         for (StructDefinition struct : flow.getStructs()) {
             structs.append(visitStructDeclaration(flow, struct)).append("\n");
         }
+
+        for (StructDefinition nativeStruct : getNativeStructs()) {
+            flow.addStruct(nativeStruct);
+        }
+
+        // setup auto generated nodes
+        for (NodeDefinition nativeNode : getNativeNodes()) {
+            flow.addNodeDefinition(nativeNode);
+        }
+
+        for(StructDefinition structDefinition : flow.getStructs()) {
+            NodeDefinitionBuilder makeNodeDefinitionBuilder = new NodeDefinitionBuilder("makestruct_" + structDefinition.getId())
+                    .addOutput(new VariableDefinition("struct_out", structDefinition.getId()));
+            NodeDefinitionBuilder breakNodeDefinitionBuilder = new NodeDefinitionBuilder("breakstruct_" + structDefinition.getId())
+                    .addInput(new VariableDefinition("struct_in", structDefinition.getId()));
+
+            for (VariableDefinition variable : structDefinition.getVariables()) {
+                makeNodeDefinitionBuilder.addInput(variable);
+                breakNodeDefinitionBuilder.addOutput(variable);
+            }
+
+            NodeDefinition makeNodeDefinition = makeNodeDefinitionBuilder.build();
+            NodeDefinition breakNodeDefinition = breakNodeDefinitionBuilder.build();
+
+            flow.addNodeDefinition(makeNodeDefinition);
+            flow.addNodeDefinition(breakNodeDefinition);
+        }
+
         return structs + visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId("Flow.Begin")));
     }
 
@@ -107,29 +135,20 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
 
     private String structOperator(Flow flow, Node node, String structType, boolean isMake) {
         StringBuilder sb = new StringBuilder();
-
+        NodeDefinition nodeDefinition = flow.getNodeDefinition(node.getType());
         Optional<StructDefinition> structDefinition = flow.getStructs().stream().filter(s -> Objects.equals(s.getId(), structType)).findFirst();
-        if(structDefinition.isEmpty()) {
+/*        if(structDefinition.isEmpty()) {
             structDefinition = getNativeStructs().stream().filter(s -> Objects.equals(s.getId(), structType)).findFirst();
-        }
+        }*/
 
         if(structDefinition.isEmpty()) {
             throw new RuntimeException("No such struct: \"" + structType + "\"");
         }
 
         if(isMake) {
-            NodeDefinitionBuilder makeNodeDefinitionBuilder = new NodeDefinitionBuilder("makestruct_" + structType)
-                    .addOutput(new VariableDefinition("struct_out", structType));
-
-            for (VariableDefinition variable : structDefinition.get().getVariables()) {
-                makeNodeDefinitionBuilder.addInput(variable);
-            }
-
-            NodeDefinition makeNodeDefinition = makeNodeDefinitionBuilder.build();
-
             // type name;
-            String structIdentifier = convertIdentifier(node.getPinId(makeNodeDefinition.getOutputs().get(0).getId()));
-            sb.append(makeNodeDefinition.getOutputs().get(0).getType()).append(" ").append(structIdentifier).append(";");
+            String structIdentifier = convertIdentifier(node.getPinId(nodeDefinition.getOutputs().get(0).getId()));
+            sb.append(nodeDefinition.getOutputs().get(0).getType()).append(" ").append(structIdentifier).append(";");
 
             List<String> inputPins = node.getInputPins();
             for (String inputPin : inputPins) {
