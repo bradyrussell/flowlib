@@ -107,7 +107,11 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
 
     private String structOperator(Flow flow, Node node, String structType, boolean isMake) {
         StringBuilder sb = new StringBuilder();
+
         Optional<StructDefinition> structDefinition = flow.getStructs().stream().filter(s -> Objects.equals(s.getId(), structType)).findFirst();
+        if(structDefinition.isEmpty()) {
+            structDefinition = getNativeStructs().stream().filter(s -> Objects.equals(s.getId(), structType)).findFirst();
+        }
         NodeDefinition nodeDefinition = flow.getNodeDefinition(node.getType());
 
         if(structDefinition.isEmpty()) {
