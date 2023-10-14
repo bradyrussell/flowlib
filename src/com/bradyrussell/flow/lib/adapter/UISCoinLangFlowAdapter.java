@@ -112,16 +112,24 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
         if(structDefinition.isEmpty()) {
             structDefinition = getNativeStructs().stream().filter(s -> Objects.equals(s.getId(), structType)).findFirst();
         }
-        NodeDefinition nodeDefinition = flow.getNodeDefinition(node.getType());
 
         if(structDefinition.isEmpty()) {
             throw new RuntimeException("No such struct: \"" + structType + "\"");
         }
 
         if(isMake) {
+            NodeDefinitionBuilder makeNodeDefinitionBuilder = new NodeDefinitionBuilder("makestruct_" + structType)
+                    .addOutput(new VariableDefinition("struct_out", structType));
+
+            for (VariableDefinition variable : structDefinition.get().getVariables()) {
+                makeNodeDefinitionBuilder.addInput(variable);
+            }
+
+            NodeDefinition makeNodeDefinition = makeNodeDefinitionBuilder.build();
+
             // type name;
             String structIdentifier = convertIdentifier(node.getOutputPins().get(0));
-            sb.append(nodeDefinition.getOutputs().get(0).getType()).append(" ").append(structIdentifier).append(";");
+            sb.append(makeNodeDefinition.getOutputs().get(0).getType()).append(" ").append(structIdentifier).append(";");
 
             List<String> inputPins = node.getInputPins();
             for (String inputPin : inputPins) {
