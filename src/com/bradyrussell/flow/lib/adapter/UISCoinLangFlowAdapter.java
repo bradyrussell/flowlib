@@ -6,6 +6,7 @@ import com.bradyrussell.flow.lib.graph.builder.NodeDefinitionBuilder;
 import com.bradyrussell.flow.lib.graph.builder.StructDefinitionBuilder;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
     @Override
@@ -167,8 +168,8 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
     private String biOperator(Flow flow, Node node, String operator) {
         StringBuilder sb = new StringBuilder();
         NodeDefinition nodeDefinition = getRegisteredNodes().get(node.getType());
-        sb.append(nodeDefinition.getOutputs().get(0).getType()).append(" ").append(convertIdentifier(node.getOutputPins().get(0))).append(" = ");
-        List<String> inputPins = node.getInputPins();
+        sb.append(nodeDefinition.getOutputs().get(0).getType()).append(" ").append(convertIdentifier(getOutputPins(node).get(0))).append(" = ");
+        List<String> inputPins = getInputPins(node);
         String aPinConstantValue = flow.getPinConstantValue(inputPins.get(0));
         if(aPinConstantValue != null) {
             sb.append(resolveLiteral(aPinConstantValue));
@@ -210,7 +211,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
             String structIdentifier = convertIdentifier(node.getPinId(nodeDefinition.getOutputs().get(0).getId()));
             sb.append(nodeDefinition.getOutputs().get(0).getType()).append(" ").append(structIdentifier).append(";\n");
 
-            List<String> inputPins = node.getInputPins();
+            List<String> inputPins = getInputPins(node);
             for (int i = 0; i < inputPins.size(); i++) {
                 String inputPin = inputPins.get(i);
                 String pinConstantValue = flow.getPinConstantValue(inputPin);
@@ -226,10 +227,10 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
                 }
             }
         } else {
-            String structInputPinId = flow.getConnectedPinId(node.getInputPins().get(0));
+            String structInputPinId = flow.getConnectedPinId(getInputPins(node).get(0));
             if (structInputPinId != null) {
                 String structIdentifier = convertIdentifier(structInputPinId);
-                List<String> outputPins = node.getOutputPins();
+                List<String> outputPins = getOutputPins(node);
                 for (int i = 0; i < outputPins.size(); i++) {
                     String outputPin = outputPins.get(i);
                     String connectedPinId = flow.getConnectedPinId(outputPin);
@@ -259,7 +260,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
         } else {
             switch (node.getType()) {
                 case "code" -> {
-                    List<String> inputPins = node.getInputPins();
+                    List<String> inputPins = getInputPins(node);
                     String pinConstantValue = flow.getPinConstantValue(inputPins.get(0));
                     sb.append("/* Begin Code Node: ").append(node.getId()).append(" */\n");
                     if(pinConstantValue != null) {
@@ -274,8 +275,8 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
                 }
                 case "not" -> {
                     NodeDefinition nodeDefinition = getRegisteredNodes().get(node.getType());
-                    sb.append(nodeDefinition.getOutputs().get(0).getType()).append(" ").append(convertIdentifier(node.getOutputPins().get(0))).append(" = !");
-                    List<String> inputPins = node.getInputPins();
+                    sb.append(nodeDefinition.getOutputs().get(0).getType()).append(" ").append(convertIdentifier(getOutputPins(node).get(0))).append(" = !");
+                    List<String> inputPins = getInputPins(node);
                     String aPinConstantValue = flow.getPinConstantValue(inputPins.get(0));
                     if(aPinConstantValue != null) {
                         sb.append(resolveLiteral(aPinConstantValue));
@@ -318,7 +319,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
                 }
                 case "if" -> {
                     sb.append("if(");
-                    List<String> inputPins = node.getInputPins();
+                    List<String> inputPins = getInputPins(node);
                     String pinConstantValue = flow.getPinConstantValue(inputPins.get(0));
                     if(pinConstantValue != null) {
                         sb.append(resolveLiteral(pinConstantValue));
@@ -337,7 +338,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
                 }
                 case "while" -> {
                     sb.append("while(");
-                    List<String> inputPins = node.getInputPins();
+                    List<String> inputPins = getInputPins(node);
                     String pinConstantValue = flow.getPinConstantValue(inputPins.get(0));
                     if(pinConstantValue != null) {
                         sb.append(resolveLiteral(pinConstantValue));
@@ -355,11 +356,11 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
                 }
                 default -> {
                     NodeDefinition nodeDefinition = getRegisteredNodes().get(node.getType());
-                    if(node.getOutputPins().size() == 1) {
-                        sb.append(nodeDefinition.getOutputs().get(0).getType()).append(" ").append(convertIdentifier(node.getOutputPins().get(0))).append(" = ");
-                    } else if(node.getOutputPins().size() > 1) {
+                    if(getOutputPins(node).size() == 1) {
+                        sb.append(nodeDefinition.getOutputs().get(0).getType()).append(" ").append(convertIdentifier(getOutputPins(node).get(0))).append(" = ");
+                    } else if(getOutputPins(node).size() > 1) {
                         sb.append("(");
-                        List<String> outputPins = node.getOutputPins();
+                        List<String> outputPins = getOutputPins(node);
                         for (int i = 0; i < outputPins.size(); i++) {
                             sb.append(nodeDefinition.getOutputs().get(i).getType());
                             sb.append(" ");
@@ -373,7 +374,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
 
                     sb.append("_").append(node.getType()).append("(");
 
-                    List<String> inputPins = node.getInputPins();
+                    List<String> inputPins = getInputPins(node);
                     for (int i = 0; i < inputPins.size(); i++) {
                         String pinConstantValue = flow.getPinConstantValue(inputPins.get(i));
                         if(pinConstantValue != null) {
@@ -450,6 +451,22 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
     @Override
     public boolean isAutoCastAllowed(String fromType, String toType) {
         return !fromType.equals(Constants.FlowType) && !toType.equals(Constants.FlowType);
+    }
+
+    public List<String> getInputPins(Node node) {
+        List<VariableDefinition> inputs = getRegisteredNodes().get(node.getType()).getInputs();
+        if(inputs == null) {
+            return List.of();
+        }
+        return inputs.stream().map((variableDefinition -> node.getPinId(variableDefinition.getId()))).collect(Collectors.toList());
+    }
+
+    public List<String> getOutputPins(Node node) {
+        List<VariableDefinition> outputs = getRegisteredNodes().get(node.getType()).getOutputs();
+        if(outputs == null) {
+            return List.of();
+        }
+        return outputs.stream().map((variableDefinition -> node.getPinId(variableDefinition.getId()))).collect(Collectors.toList());
     }
 
     private static List<NodeDefinition> nativeMethods = List.of(

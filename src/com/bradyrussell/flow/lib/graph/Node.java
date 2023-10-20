@@ -91,11 +91,11 @@ public class Node {
         return getId() + Constants.NodeIDValueDelimiter + valueId;
     }
 
-    public boolean hasPin(String valueId) {
+/*    public boolean hasPin(String valueId) {
         return true;//todo
-    }
+    }*/
 
-    public List<String> getInputPins() {
+/*    public List<String> getInputPins() {
         List<VariableDefinition> inputs = getFlow().getNodeDefinition(getType()).getInputs();
         if(inputs == null) {
             return List.of();
@@ -109,9 +109,9 @@ public class Node {
             return List.of();
         }
         return outputs.stream().map((variableDefinition -> getPinId(variableDefinition.getId()))).collect(Collectors.toList());
-    }
+    }*/
 
-    public List<String> getPins() {
+/*    public List<String> getPins() {
         ArrayList<String> pins = new ArrayList<>(getInputPins());
         pins.addAll(getOutputPins());
         return pins;
@@ -129,5 +129,5 @@ public class Node {
         ArrayList<String> pins = new ArrayList<>(getInputPins(type));
         pins.addAll(getOutputPins(type));
         return pins;
-    }
+    }*/
 }
