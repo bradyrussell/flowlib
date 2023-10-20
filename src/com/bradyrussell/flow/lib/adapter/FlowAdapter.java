@@ -13,6 +13,7 @@ public interface FlowAdapter<T> {
     List<String> getPrimitiveTypes();
     List<StructDefinition> getNativeStructs();
     List<NodeDefinition> getNativeNodes();
+    List<VariableDefinition> getNativeVariables();
 
     T visitFlow(Flow flow);
     T visitVariableDeclaration(Flow flow, VariableDefinition variable);

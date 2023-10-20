@@ -5,10 +5,7 @@ import com.bradyrussell.flow.lib.graph.*;
 import com.bradyrussell.flow.lib.graph.builder.NodeDefinitionBuilder;
 import com.bradyrussell.flow.lib.graph.builder.StructDefinitionBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
     @Override
@@ -36,28 +33,82 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
         return List.of(new StructDefinitionBuilder("test_struct").setColor("red").addVariable(new VariableDefinition("test", "int32")).build());
     }
 
+    // all structs in scope
+    private HashMap<String, StructDefinition> registeredStructs = new HashMap<>();
+
+    // all flows in scope
+    private HashMap<String, NodeDefinition> registeredNodes = new HashMap<>();
+
+    // all flow variables in scope
+    private HashMap<String, VariableDefinition> registeredVariables = new HashMap<>();
+
+    private HashMap<String, StructDefinition> getRegisteredStructs() {
+        return registeredStructs;
+    }
+
+    public HashMap<String, NodeDefinition> getRegisteredNodes() {
+        return registeredNodes;
+    }
+
+    public HashMap<String, VariableDefinition> getRegisteredVariables() {
+        return registeredVariables;
+    }
+
+    public void registerStruct(StructDefinition definition) {
+        registeredStructs.put(definition.getId(), definition);
+    }
+
+    public void registerNode(NodeDefinition definition) {
+        registeredNodes.put(definition.getId(), definition);
+    }
+
+    public void registerVariable(VariableDefinition definition) {
+        registeredVariables.put(definition.getId(), definition);
+    }
+
     @Override
     public List<NodeDefinition> getNativeNodes() {
         return nativeMethods;
     }
 
     @Override
-    public String visitFlow(Flow flow) {
-        StringBuilder structs = new StringBuilder();
+    public List<VariableDefinition> getNativeVariables() {
+        return List.of();
+    }
+
+    public void updateRegistries(Flow flow) {
+        // clear registries
+        getRegisteredStructs().clear();
+        getRegisteredNodes().clear();
+        getRegisteredVariables().clear();
+
+        // register flow structs
         for (StructDefinition struct : flow.getStructs()) {
-            structs.append(visitStructDeclaration(flow, struct)).append("\n");
+            registerStruct(struct);
         }
 
+        // register flow nodes
+        for (NodeDefinition node : flow.getNodeDefinitions().values()) {
+            registerNode(node);
+        }
+
+        // register auto generated structs
         for (StructDefinition nativeStruct : getNativeStructs()) {
-            flow.addStruct(nativeStruct);
+            registerStruct(nativeStruct);
         }
 
-        // setup auto generated nodes
+        // register auto generated nodes
         for (NodeDefinition nativeNode : getNativeNodes()) {
-            flow.addNodeDefinition(nativeNode);
+            registerNode(nativeNode);
         }
 
-        for(StructDefinition structDefinition : flow.getStructs()) {
+        // register auto generated variables
+        for (VariableDefinition nativeVar : getNativeVariables()) {
+            registerVariable(nativeVar);
+        }
+
+        // register struct make / break nodes
+        for(StructDefinition structDefinition : getRegisteredStructs().values()) {
             NodeDefinitionBuilder makeNodeDefinitionBuilder = new NodeDefinitionBuilder("makestruct_" + structDefinition.getId())
                     .addOutput(new VariableDefinition("struct_out", structDefinition.getId()));
             NodeDefinitionBuilder breakNodeDefinitionBuilder = new NodeDefinitionBuilder("breakstruct_" + structDefinition.getId())
@@ -68,14 +119,25 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
                 breakNodeDefinitionBuilder.addOutput(variable);
             }
 
-            NodeDefinition makeNodeDefinition = makeNodeDefinitionBuilder.build();
-            NodeDefinition breakNodeDefinition = breakNodeDefinitionBuilder.build();
+            registerNode(makeNodeDefinitionBuilder.build());
+            registerNode(breakNodeDefinitionBuilder.build());
+        }
+    }
 
-            flow.addNodeDefinition(makeNodeDefinition);
-            flow.addNodeDefinition(breakNodeDefinition);
+    @Override
+    public String visitFlow(Flow flow) {
+        // refresh registered nodes / structs
+        updateRegistries(flow);
+
+        // begin building output
+        StringBuilder structs = new StringBuilder();
+
+        // define structs at the top of the file
+        for (StructDefinition struct : getRegisteredStructs().values()) {
+            structs.append(visitStructDeclaration(flow, struct)).append("\n");
         }
 
-        return structs + visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId("Flow.Begin")));
+        return structs.append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId("Flow.Begin")))).toString();
     }
 
     @Override
@@ -104,7 +166,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
 
     private String biOperator(Flow flow, Node node, String operator) {
         StringBuilder sb = new StringBuilder();
-        NodeDefinition nodeDefinition = flow.getNodeDefinition(node.getType());
+        NodeDefinition nodeDefinition = getRegisteredNodes().get(node.getType());
         sb.append(nodeDefinition.getOutputs().get(0).getType()).append(" ").append(convertIdentifier(node.getOutputPins().get(0))).append(" = ");
         List<String> inputPins = node.getInputPins();
         String aPinConstantValue = flow.getPinConstantValue(inputPins.get(0));
@@ -135,13 +197,14 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
 
     private String structOperator(Flow flow, Node node, String structType, boolean isMake) {
         StringBuilder sb = new StringBuilder();
-        NodeDefinition nodeDefinition = flow.getNodeDefinition(node.getType());
-        Optional<StructDefinition> structDefinition = flow.getStructs().stream().filter(s -> Objects.equals(s.getId(), structType)).findFirst();
+        NodeDefinition nodeDefinition = getRegisteredNodes().get(node.getType());
+        StructDefinition structDefinition = getRegisteredStructs().get(structType);
 
-        if(structDefinition.isEmpty()) {
+        if(structDefinition == null) {
             throw new RuntimeException("No such struct: \"" + structType + "\"");
         }
 
+        
         if(isMake) {
             // type name;
             String structIdentifier = convertIdentifier(node.getPinId(nodeDefinition.getOutputs().get(0).getId()));
@@ -210,7 +273,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
                     sb.append("\n/* End Code Node: ").append(node.getId()).append(" */\n");
                 }
                 case "not" -> {
-                    NodeDefinition nodeDefinition = flow.getNodeDefinition(node.getType());
+                    NodeDefinition nodeDefinition = getRegisteredNodes().get(node.getType());
                     sb.append(nodeDefinition.getOutputs().get(0).getType()).append(" ").append(convertIdentifier(node.getOutputPins().get(0))).append(" = !");
                     List<String> inputPins = node.getInputPins();
                     String aPinConstantValue = flow.getPinConstantValue(inputPins.get(0));
@@ -291,7 +354,7 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
                             .append(visitNode(flow, flow.getNodeFromPinId(flow.getConnectedPinId(node.getPinId("done")))));
                 }
                 default -> {
-                    NodeDefinition nodeDefinition = flow.getNodeDefinition(node.getType());
+                    NodeDefinition nodeDefinition = getRegisteredNodes().get(node.getType());
                     if(node.getOutputPins().size() == 1) {
                         sb.append(nodeDefinition.getOutputs().get(0).getType()).append(" ").append(convertIdentifier(node.getOutputPins().get(0))).append(" = ");
                     } else if(node.getOutputPins().size() > 1) {
