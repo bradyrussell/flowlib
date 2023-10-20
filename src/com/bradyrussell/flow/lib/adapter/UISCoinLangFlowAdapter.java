@@ -133,8 +133,8 @@ public class UISCoinLangFlowAdapter implements FlowAdapter<String> {
         // begin building output
         StringBuilder structs = new StringBuilder();
 
-        // define structs at the top of the file
-        for (StructDefinition struct : getRegisteredStructs().values()) {
+        // define flow-level structs at the top of the file
+        for (StructDefinition struct : flow.getStructs()) {
             structs.append(visitStructDeclaration(flow, struct)).append("\n");
         }
 
